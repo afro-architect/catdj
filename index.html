@@ -136,57 +136,7 @@
     .secondary-text { color:var(--text-sub); font-size:var(--text-sm); }
     .hidden-ui { opacity:0.38; }
    
-    @media (max-width: 700px) {
-      overflow-y: auto;     /* allow scroll */
-       .overlay {
-    position: static;     /* no longer fixed over scene */
-    padding: 0.75rem 0.5rem;
-  }
-       #scene-root {
-    position: sticky;
-    top: 0;
-    height: 60vh;                /* game gets ~60% of viewport */
-  }
-
-  .hud {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .hud-top,
-  .hud-bottom {
-    width: 100%;
-  }
-  .hud.compact .brand p,
-  .hud.compact .start-list,
-  .hud.compact .deck-header span {
-    display: none;
-    .hud.mini .brand p,
-  .hud.mini .start-list,
-  .hud.mini .deck-header span {
-    display: none;
-  }
-
-  .hud.mini .brand h1 {
-    font-size: 1.1rem;
-  }
-
-  .hud.mini .deck-panel {
-    padding: 0.6rem 0.8rem;
-  }
-    html, body {
-  height: 100%;
-       overflow-y: auto;  /* allow vertical scroll */
-}
-   
-  }
-}
-  }
-  .hud.compact .deck-panel {
-    margin-top: 0.4rem;
-  }
-}
-}
+    
    @media (max-width: 900px) {
   html, body {
     height: auto;
