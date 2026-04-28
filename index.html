@@ -1063,8 +1063,24 @@ earR.rotation.x = Math.cos(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
   if (chain) {
     const baseScale = 1.0 + Math.sin(state.swirl * 3.2) * 0.05;
     const hypeScale = 1.0 + hypeFactor * 0.15;
+    function updateAnimations(delta) {
+  state.swirl += delta;
+
+  const hypeFactor = state.hype / 100;
+
+  // ... all your existing animation code (decks, booth, cat, crowd, lights, camera) ...
+
+  // Chain pulse (safe)
+  const chain = catGroup.userData.chain;
+  if (chain) {
+    const baseScale = 1.0 + Math.sin(state.swirl * 3.2) * 0.05;
+    const hypeScale = 1.0 + hypeFactor * 0.15;
     chain.scale.set(baseScale * hypeScale, baseScale, baseScale);
   }
+
+  updateAudioMix();
+}
+
     
 // Inside updateAnimations, after state.swirl update
 
