@@ -530,33 +530,42 @@ catGroup.add(nose, muzzle);
   const pawR = pawL.clone();
 
   // Cat-like mouth arc (subtle smile)
+// Cheshire grin: wider arc
 const mouthCurve = new THREE.Mesh(
-  new THREE.TorusGeometry(0.22, 0.02, 12, 32, Math.PI),
+  new THREE.TorusGeometry(0.32, 0.02, 12, 48, Math.PI),
   new THREE.MeshStandardMaterial({
-    color: 0x8b4a32,
-    roughness: 0.7,
-    metalness: 0.0,
+    color: 0xfdfaf4,
+    roughness: 0.4,
+    emissive: 0xff3fbc,
+    emissiveIntensity: 0.4,
   })
 );
-// Position just under the muzzle
-mouthCurve.position.set(0, 4.02, 0.73);
+mouthCurve.position.set(0, 4.0, 0.74);
 mouthCurve.rotation.set(Math.PI, 0, 0);
 
-// Small fang canines
-const fangMat = new THREE.MeshStandardMaterial({
+// Teeth along the grin
+const teethGroup = new THREE.Group();
+const toothMat = new THREE.MeshStandardMaterial({
   color: 0xfdfaf4,
-  roughness: 0.4,
+  roughness: 0.5,
 });
 
-const fangL = new THREE.Mesh(
-  new THREE.ConeGeometry(0.03, 0.12, 8),
-  fangMat
-);
-fangL.position.set(-0.06, 3.99, 0.78);
-fangL.rotation.x = Math.PI / 2;
+const teethCount = 8;
+for (let i = 0; i < teethCount; i++) {
+  const t = (i / (teethCount - 1)) * 2 - 1; // -1 to 1
+  const tooth = new THREE.Mesh(
+    new THREE.BoxGeometry(0.03, 0.08, 0.02),
+    toothMat
+  );
+  tooth.position.set(t * 0.22, -0.02, 0.02);
+  teethGroup.add(tooth);
+}
 
-const fangR = fangL.clone();
-fangR.position.x = 0.06;
+teethGroup.position.copy(mouthCurve.position);
+teethGroup.position.y -= 0.02;
+teethGroup.rotation.copy(mouthCurve.rotation);
+
+catGroup.add(mouthCurve, teethGroup);
 
 // Attach to face
 catGroup.add(mouthCurve, fangL, fangR);
