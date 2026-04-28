@@ -152,18 +152,37 @@
             <h1>Neon Cat DJ</h1>
             <p>Hold the groove, swat the mice, and keep the dance floor screaming while your cat avatar rules the decks.</p>
           </div>
-          <div class="controls" aria-label="Game controls">
-            <button class="icon-btn" id="themeToggle" aria-label="Switch color theme" title="Toggle theme">☾</button>
-            <button class="pill-btn active" id="musicToggle" aria-pressed="true">Music on</button>
-            <button class="pill-btn" id="pauseToggle" aria-pressed="false">Pause</button>
-          </div>
+         <div class="controls" aria-label="Game controls">
+  <button class="icon-btn" id="themeToggle" aria-label="Switch color theme" title="Toggle theme">☾</button>
+  <button class="pill-btn active" id="musicToggle" aria-pressed="true">Music on</button>
+  <button class="pill-btn" id="pauseToggle" aria-pressed="false">Pause</button>
+
+  <select id="trackSelect" aria-label="Music track">
+    <option value="chill" selected>Chill loop</option>
+    <option value="hype">Hype loop</option>
+    <option value="weird">Weird loop</option>
+  </select>
+</div>
         </div>
         <div class="hud-bottom">
-          <div class="metrics" aria-label="Current game metrics">
-            <div class="metric"><div class="label">Hype</div><div class="value" id="hypeValue">100%</div></div>
-            <div class="metric"><div class="label">Combo</div><div class="value" id="comboValue">0x</div></div>
-            <div class="metric"><div class="label">Score</div><div class="value" id="scoreValue">0000</div></div>
-          </div>
+<div class="metrics" aria-label="Current game metrics">
+  <div class="metric">
+    <div class="label">Hype</div>
+    <div class="value" id="hypeValue">100%</div>
+  </div>
+  <div class="metric">
+    <div class="label">Combo</div>
+    <div class="value" id="comboValue">0x</div>
+  </div>
+  <div class="metric">
+    <div class="label">Score</div>
+    <div class="value" id="scoreValue">0000</div>
+  </div>
+  <div class="metric">
+    <div class="label">Mouse speed</div>
+    <input id="speedSlider" type="range" min="40" max="110" value="75" />
+  </div>
+</div>
           <div class="deck-panel">
             <div class="deck-header"><strong>Crossfader</strong><span>Shift the vibe left or right</span></div>
             <div class="slider-row">
@@ -205,6 +224,7 @@
     const startButton = document.getElementById('startButton');
     const themeToggle = document.getElementById('themeToggle');
     const musicToggle = document.getElementById('musicToggle');
+    const musicVolume = document.getElementById('musicVolume');
     const pauseToggle = document.getElementById('pauseToggle');
     const scoreEl = document.getElementById('scoreValue');
     const comboEl = document.getElementById('comboValue');
@@ -216,21 +236,33 @@
     const clock = new THREE.Clock();
     const FIXED_TIMESTEP = 1 / 60;
     let accumulator = 0;
+    const trackSelect = document.getElementById('trackSelect');
+
+const tracks = {
+  chill: 'track-chill.ogg',
+  hype: 'track-hype.ogg',
+  weird: 'track-weird.ogg',
+};
+
+const trackBuffers = {};
+let currentTrackKey = 'chill';
+let musicSource = null;
 
     const state = {
-      started: false,
-      paused: false,
-      musicOn: true,
-      score: 0,
-      combo: 0,
-      hype: 100,
-      spawnTimer: 0,
-      spawnInterval: 1.35,
-      swirl: 0,
-      crossfader: 0,
-      messageTimeout: null,
-      theme: 'dark',
-    };
+  started: false,
+  paused: false,
+  musicOn: true,
+  score: 0,
+  combo: 0,
+  hype: 100,
+  spawnTimer: 0,
+  spawnInterval: 1.35,
+  swirl: 0,
+  crossfader: 0,
+  messageTimeout: null,
+  theme: 'dark',
+  slowFactor: 0.75, // 1.0 = original speed, lower = slower
+};
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -472,7 +504,11 @@ scene.add(rim);
       osc.start();
       return { osc, gain };
     }
-
+async function loadAudioBuffer(url) {
+  const res = await fetch(url);
+  const arrayBuf = await res.arrayBuffer();
+  return audioCtx.decodeAudioData(arrayBuf);
+}
     function initAudio() {
       if (masterGain) return;
       masterGain = audioCtx.createGain();
@@ -744,7 +780,78 @@ scene.add(rim);
       document.querySelector('.start-card h2').textContent = 'Drop the beat. Protect the booth.';
       document.querySelector('.start-card p').textContent = 'This browser version leans into the memory: dark mode, neon spotlights, a CGI-style cat DJ, a cheering mouse crowd, and chaotic mice that dash across the decks.';
       updateHUD();
-      initAudio();
+      async function initAudio() {
+  if (masterGain) return;
+
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = 0.18;
+  masterGain.connect(audioCtx.destination);
+
+  deckGainA = audioCtx.createGain();
+  deckGainB = audioCtx.createGain();
+  filterA = audioCtx.createBiquadFilter();
+  filterB = audioCtx.createBiquadFilter();
+  crowdGain = audioCtx.createGain();
+
+  filterA.type = 'lowpass';
+  filterB.type = 'lowpass';
+  filterA.frequency.value = 1000;
+  filterB.frequency.value = 900;
+  crowdGain.gain.value = 0.02;
+
+  // Load all track buffers once
+  if (!trackBuffers.chill) {
+    const keys = Object.keys(tracks);
+    for (const key of keys) {
+      trackBuffers[key] = await loadAudioBuffer(tracks[key]);
+    }
+  }
+
+  // Create crowd noise (same as before)
+  const crowdNoise = audioCtx.createBufferSource();
+  const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 1.5, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+  }
+  crowdNoise.buffer = buffer;
+  crowdNoise.loop = true;
+  const crowdFilter = audioCtx.createBiquadFilter();
+  crowdFilter.type = 'bandpass';
+  crowdFilter.frequency.value = 660;
+  crowdFilter.Q.value = 0.7;
+  crowdNoise.connect(crowdFilter).connect(crowdGain).connect(masterGain);
+  crowdNoise.start();
+
+  // Start the initial track
+  function startTrack(key) {
+  if (!trackBuffers[key]) return;
+  if (musicSource) {
+    musicSource.stop();
+    musicSource.disconnect();
+  }
+
+  currentTrackKey = key;
+
+  musicSource = audioCtx.createBufferSource();
+  musicSource.buffer = trackBuffers[key];
+  musicSource.loop = true;
+
+  // Route: source -> filters -> deck gains -> master
+  musicSource.connect(filterA);
+  musicSource.connect(filterB);
+
+  filterA.connect(deckGainA);
+  filterB.connect(deckGainB);
+
+  deckGainA.connect(masterGain);
+  deckGainB.connect(masterGain);
+
+  deckGainA.gain.value = 0.6;
+  deckGainB.gain.value = 0.6;
+
+  musicSource.start();
+}
       audioCtx.resume();
       showMessage('Set live');
       // Cinematic fade‑in: sound and lights swell in
@@ -807,6 +914,30 @@ setTimeout(() => {
       renderer.setSize(window.innerWidth, window.innerHeight);
       composer.setSize(window.innerWidth, window.innerHeight);
     });
+
+    speedSlider.addEventListener('input', () => {
+  const v = Number(speedSlider.value); // 40–110
+  state.slowFactor = v / 100;         // 0.4–1.1
+  showMessage(`Mouse speed: ${v}%`);
+});
+
+    musicVolume.addEventListener('input', () => {
+  const v = Number(musicVolume.value); // 20–120
+  const normalized = v / 100;          // 0.2–1.2
+  if (masterGain) {
+    masterGain.gain.value = normalized * 0.18; // 0.18 was your original base
+  }
+  showMessage(`Music level: ${v}%`);
+});
+      trackSelect.addEventListener('change', async () => {
+  const key = trackSelect.value;
+  if (!masterGain) {
+    await initAudio();
+    await audioCtx.resume();
+  }
+  startTrack(key);
+  showMessage(`Switched to: ${trackSelect.options[trackSelect.selectedIndex].textContent}`);
+});
 
     updateHUD();
     updateAudioMix();
