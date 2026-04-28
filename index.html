@@ -1352,26 +1352,37 @@ camera.lookAt(0, 2.6, 0.3);
   }
   requestAnimationFrame(gameLoop);
 
-  function startGame() {
+async function startGame() {
+  try {
     state.started = true;
     state.paused = false;
     state.score = 0;
     state.combo = 0;
     state.hype = 100;
     state.spawnTimer = 0;
+
     activeMice.splice(0).forEach((mouse) => stage.remove(mouse.mesh));
     splats.splice(0).forEach((splat) => stage.remove(splat.mesh));
+
     startScreen.classList.add('hidden');
     startButton.textContent = 'Start set';
     document.querySelector('.start-card h2').textContent =
       'Drop the beat. Protect the booth.';
     document.querySelector('.start-card p').textContent =
       'This browser version leans into the memory: dark mode, neon spotlights, a CGI-style cat DJ, a cheering mouse crowd, and chaotic mice that dash across the decks.';
+
     updateHUD();
-    initAudio().then(() => audioCtx.resume());
+
+    // Mobile‑safe audio unlock
+    if (!masterGain) {
+      await initAudio();
+    }
+    if (audioCtx.state === 'suspended') {
+      await audioCtx.resume();
+    }
+
     showMessage('Set live');
 
-    // Cinematic fade‑in
     if (masterGain) {
       masterGain.gain.setValueAtTime(0.0, audioCtx.currentTime);
       masterGain.gain.linearRampToValueAtTime(
@@ -1391,9 +1402,14 @@ camera.lookAt(0, 2.6, 0.3);
       spotRight.intensity = 32;
       rim.intensity = 9;
     }, 2500);
+  } catch (err) {
+    console.error('Error starting game:', err);
+    showMessage('Tap again to start audio');
+    state.started = false;
   }
+}
 
-  startButton.addEventListener('click', startGame);
+startButton.addEventListener('click', startGame);
 
   pauseToggle.addEventListener('click', () => {
     state.paused = !state.paused;
