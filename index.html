@@ -810,6 +810,41 @@ catGroup.add(chestPatch);
     osc.stop(audioCtx.currentTime + 0.25);
   }
 
+  function playScratchSfx() {
+  if (!audioCtx) return;
+
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const noise = audioCtx.createBufferSource();
+
+  // Create a short noise burst
+  const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.12, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+  }
+  noise.buffer = buffer;
+
+  // Oscillator for a pitched swipe
+  osc.type = 'square';
+  osc.frequency.setValueAtTime(420, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.12);
+
+  // Envelope
+  gain.gain.setValueAtTime(0.22, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+
+  // Mix osc + noise into gain
+  osc.connect(gain);
+  noise.connect(gain);
+  gain.connect(masterGain || audioCtx.destination);
+
+  osc.start();
+  noise.start();
+  osc.stop(audioCtx.currentTime + 0.13);
+  noise.stop(audioCtx.currentTime + 0.13);
+}
+
   function updateAudioMix() {
     if (!masterGain || !deckGainA || !deckGainB) return;
     const left = Number(leftGain.value) / 100;
