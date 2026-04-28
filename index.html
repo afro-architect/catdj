@@ -162,6 +162,15 @@
     <option value="hype">Hype loop</option>
     <option value="weird">Weird loop</option>
   </select>
+
+  <input id="musicVolume" type="range" min="20" max="120" value="90" aria-label="Music volume">
+</div>
+
+  <select id="trackSelect" aria-label="Music track">
+    <option value="chill" selected>Chill loop</option>
+    <option value="hype">Hype loop</option>
+    <option value="weird">Weird loop</option>
+  </select>
 </div>
         </div>
         <div class="hud-bottom">
@@ -178,6 +187,11 @@
     <div class="label">Score</div>
     <div class="value" id="scoreValue">0000</div>
   </div>
+  <div class="metric">
+    <div class="label">Mouse speed</div>
+    <input id="speedSlider" type="range" min="40" max="110" value="75" />
+  </div>
+</div>
   <div class="metric">
     <div class="label">Mouse speed</div>
     <input id="speedSlider" type="range" min="40" max="110" value="75" />
