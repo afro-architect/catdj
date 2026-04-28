@@ -124,21 +124,25 @@
     .secondary-text { color:var(--text-sub); font-size:var(--text-sm); }
     .hidden-ui { opacity:0.38; }
     @media (max-width: 820px) {
-       .hud {
+        overflow-y: auto;     /* allow scroll */
+       .overlay {
+    position: static;     /* no longer fixed over scene */
+    padding: 0.75rem 0.5rem;
+  }
+       #scene-root {
+    position: sticky;
+    top: 0;
+    height: 60vh;                /* game gets ~60% of viewport */
+  }
+
+  .hud {
+    flex-direction: column;
     gap: 0.75rem;
   }
-      .hud-top, .hud-bottom { flex-direction:column; }
-      .metrics, .brand { width:100%; min-width:0; }
-       .brand p {
-    font-size: 0.85rem;
-  }
-      .message { bottom: 13.8rem; width:min(88vw, 28rem); text-align:center; }
-      .controls { align-self:flex-start; }
-      .slider-row { grid-template-columns: 1fr; }
-      .cross-value { min-width:unset; }
-    }
-     .deck-panel {
-    padding: 0.8rem 1rem;
+
+  .hud-top,
+  .hud-bottom {
+    width: 100%;
   }
     @media (max-width: 700px) {
       overflow-y: auto;     /* allow scroll */
