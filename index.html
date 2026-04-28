@@ -1349,6 +1349,9 @@ irisR.scale.x = irisL.scale.x;
   // Example: tap the status message or add a small button to toggle compact mode
 statusMessage.addEventListener('click', () => {
   document.querySelector('.hud').classList.toggle('compact');
+  if (window.innerWidth < 700) {
+  document.querySelector('.hud')?.classList.add('mini');
+}
 });
 </script>
 </body>
