@@ -1256,7 +1256,7 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
   camera.position.y = 4.6 + Math.sin(state.swirl * 0.3) * 0.2;
   camera.lookAt(0, 2.6, 0.3);
 
-  // Combo-based extra scratch motion
+  // Extra scratch motion on big combos
   if (state.combo >= 5) {
     const scratch = Math.sin(state.swirl * 9.0) * 0.18;
     pawL.rotation.x -= scratch;
@@ -1331,17 +1331,17 @@ camera.lookAt(0, 2.6, 0.3);
 }
 
   function gameLoop() {
-    requestAnimationFrame(gameLoop);
-    const delta = Math.min(clock.getDelta(), 0.1);
-    accumulator += delta;
-    while (accumulator >= FIXED_TIMESTEP) {
-      updateGameLogic(FIXED_TIMESTEP);
-      accumulator -= FIXED_TIMESTEP;
-    }
-    updateAnimations(delta);
-    composer.render();
-  }
   requestAnimationFrame(gameLoop);
+  const delta = Math.min(clock.getDelta(), 0.1);
+  accumulator += delta;
+  while (accumulator >= FIXED_TIMESTEP) {
+    updateGameLogic(FIXED_TIMESTEP);
+    accumulator -= FIXED_TIMESTEP;
+  }
+  updateAnimations(delta);
+  composer.render();
+}
+requestAnimationFrame(gameLoop);
 
 async function startGame() {
   try {
