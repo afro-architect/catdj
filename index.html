@@ -146,7 +146,7 @@
     overflow-y: auto;
   }
 
-  /* Let the overlay live below the scene instead of covering it */
+  /* Let overlay live below the scene instead of covering it */
   .overlay {
     position: static !important;
     inset: auto !important;
@@ -154,19 +154,28 @@
     padding: 0.5rem;
   }
 
-  /* HUD is now regular content inside overlay */
+  /* HUD becomes regular content inside overlay */
   .hud {
     position: static !important;
     pointer-events: auto;
     padding: 0;
     gap: 0.75rem;
+    width: 100%;
   }
 
+   /* Inset the game horizontally a bit */
   #scene-root {
     position: relative;
-    width: 100%;
+    width: 90vw;        /* 90% of viewport width */
+    margin: 0 auto;     /* center */
     height: 55vh;
   }
+
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
 
   .hud-top,
   .hud-bottom {
@@ -174,6 +183,7 @@
     flex-direction: column;
   }
 
+  /* Trim HUD text for mobile */
   .brand p,
   .start-list {
     display: none;
@@ -190,7 +200,6 @@
   .metrics {
     gap: 0.4rem;
   }
-}
 }
 }
   </style>
@@ -351,13 +360,23 @@
   scene.fog = new THREE.FogExp2(0x06070d, 0.055);
 
   const camera = new THREE.PerspectiveCamera(
-    50,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    100
-  );
-  camera.position.set(0, 4.5, 12.5);
-  camera.lookAt(0, 2.2, 0.3);
+  55, // slightly wider base FOV
+  window.innerWidth / window.innerHeight,
+  0.1,
+  100
+);
+camera.position.set(0, 4.8, 13.2);
+camera.lookAt(0, 2.2, 0.3);
+
+function updateCameraForViewport() {
+  const isNarrow = window.innerWidth < 900;
+  // even wider FOV on phones so you see more deck width
+  camera.fov = isNarrow ? 62 : 55;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+}
+
+updateCameraForViewport();
 
   // Post processing: bloom
   const composer = new EffectComposer(renderer);
@@ -744,7 +763,16 @@ catGroup.add(chestPatch);
     });
   }
 
-  const laneXs = [-2.85, -0.95, 0.95, 2.85];
+  let laneXs = [-2.85, -0.95, 0.95, 2.85];
+
+function updateLanesForViewport() {
+  const isNarrow = window.innerWidth < 900; // same breakpoint as your CSS
+  laneXs = isNarrow
+    ? [-2.2, -0.75, 0.75, 2.2]   // pulled inward for phones
+    : [-2.85, -0.95, 0.95, 2.85];
+}
+
+updateLanesForViewport();
   const activeMice = [];
   const splats = [];
   const raycaster = new THREE.Raycaster();
@@ -1227,13 +1255,13 @@ irisR.scale.x = irisL.scale.x;
     spotRight.target.updateMatrixWorld();
 
     // Camera orbit
-    const camOrbit = state.swirl * 0.18;
-    const camRadius = 12.5;
-    camera.position.x =
-      Math.cos(camOrbit) * camRadius * 0.18 + state.crossfader * 0.8;
-    camera.position.z = 12.5 + Math.sin(camOrbit) * 0.6;
-    camera.position.y = 4.4 + Math.sin(state.swirl * 0.35) * 0.2;
-    camera.lookAt(0, 2.6, 0.3);
+    const camOrbit = state.swirl * 0.16;
+const camRadius = 12.8;
+
+camera.position.x = Math.cos(camOrbit) * camRadius * (0.12 * state.crossfader + 0.7);
+camera.position.z = 13.0 + Math.sin(camOrbit) * 0.45;
+camera.position.y = 4.6 + Math.sin(state.swirl * 0.3) * 0.2;
+camera.lookAt(0, 2.6, 0.3);
 
     updateAudioMix();
   }
@@ -1358,15 +1386,13 @@ irisR.scale.x = irisL.scale.x;
     );
   });
 
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
-  });
-
+ window.addEventListener('resize', () => {
+  updateCameraForViewport();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
   updateHUD();
   updateAudioMix();
+});
 
   // Example: tap the status message or add a small button to toggle compact mode
 statusMessage.addEventListener('click', () => {
