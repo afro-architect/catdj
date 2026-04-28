@@ -163,11 +163,19 @@
     width: 100%;
   }
 
+   /* Inset the game horizontally a bit */
   #scene-root {
     position: relative;
-    width: 100%;
-    height: 55vh;  /* game gets top of screen */
+    width: 90vw;        /* 90% of viewport width */
+    margin: 0 auto;     /* center */
+    height: 55vh;
   }
+
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
 
   .hud-top,
   .hud-bottom {
