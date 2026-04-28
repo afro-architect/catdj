@@ -1401,7 +1401,41 @@ async function startGame() {
 }
 
 startButton.addEventListener('click', startGame);
+if (!state.started || state.paused) return;
 
+  state.started = true;
+state.paused = false;
+state.spawnTimer = 0;
+
+  async function startGame() {
+  if (state.started) return;
+
+  try {
+    state.started = true;
+    state.paused = false;
+    state.spawnTimer = 0;
+
+    startScreen.classList.add('hidden');
+    startButton.textContent = 'Start set';
+    document.querySelector('.start-card h2').textContent =
+      'Drop the beat. Protect the booth.';
+    document.querySelector('.start-card p').textContent =
+      'This browser version leans into the memory: dark mode, neon spotlights, a CGI-style cat DJ, a cheering mouse crowd, and chaotic mice that dash across the decks.';
+
+    updateHUD();
+
+    // Mobile audio unlock...
+    if (!masterGain) {
+      await initAudio();
+    }
+    if (audioCtx.state === 'suspended') {
+      await audioCtx.resume();
+    }
+
+    showMessage('Set live');
+
+    // ...rest of your lighting fade-in...
+  
   pauseToggle.addEventListener('click', () => {
     state.paused = !state.paused;
     pauseToggle.classList.toggle('active', state.paused);
