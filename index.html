@@ -528,6 +528,38 @@ catGroup.add(nose, muzzle);
   const pawGeo = new THREE.CapsuleGeometry(0.16, 0.85, 6, 10);
   const pawL = new THREE.Mesh(pawGeo, catBody.material.clone());
   const pawR = pawL.clone();
+
+  // Cat-like mouth arc (subtle smile)
+const mouthCurve = new THREE.Mesh(
+  new THREE.TorusGeometry(0.22, 0.02, 12, 32, Math.PI),
+  new THREE.MeshStandardMaterial({
+    color: 0x8b4a32,
+    roughness: 0.7,
+    metalness: 0.0,
+  })
+);
+// Position just under the muzzle
+mouthCurve.position.set(0, 4.02, 0.73);
+mouthCurve.rotation.set(Math.PI, 0, 0);
+
+// Small fang canines
+const fangMat = new THREE.MeshStandardMaterial({
+  color: 0xfdfaf4,
+  roughness: 0.4,
+});
+
+const fangL = new THREE.Mesh(
+  new THREE.ConeGeometry(0.03, 0.12, 8),
+  fangMat
+);
+fangL.position.set(-0.06, 3.99, 0.78);
+fangL.rotation.x = Math.PI / 2;
+
+const fangR = fangL.clone();
+fangR.position.x = 0.06;
+
+// Attach to face
+catGroup.add(mouthCurve, fangL, fangR);
  pawL.position.set(-0.6, 2.55, 1.05);
 pawR.position.set(0.6, 2.55, 1.05);
   pawL.rotation.z = 0.55;
