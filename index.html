@@ -441,7 +441,8 @@
       metalness: 0.08,
     })
   );
-  catBody.position.set(0, 3.02, -0.1);
+ catBody.position.set(0, 3.02, -0.1);
+catBody.rotation.x = -0.18; // lean slightly toward the decks
   const catHead = new THREE.Mesh(
     new THREE.SphereGeometry(0.78, 24, 24),
     new THREE.MeshStandardMaterial({
@@ -467,18 +468,70 @@
   );
   visor.position.set(0, 4.36, 0.66);
   visor.rotation.z = Math.PI;
-  const eyeL = new THREE.Mesh(
-    new THREE.SphereGeometry(0.08, 12, 12),
-    new THREE.MeshBasicMaterial({ color: 0x37f5ff })
-  );
-  const eyeR = eyeL.clone();
-  eyeL.position.set(-0.22, 4.3, 0.7);
-  eyeR.position.set(0.22, 4.3, 0.7);
+  // Feline eyes: elongated with a vertical slit
+const eyeWhiteMat = new THREE.MeshStandardMaterial({
+  color: 0xfaf7f0,
+  roughness: 0.4,
+  metalness: 0.0,
+  emissive: 0x000000,
+});
+
+const irisMat = new THREE.MeshStandardMaterial({
+  color: 0x3fd6ff,
+  emissive: 0x1280ff,
+  emissiveIntensity: 0.7,
+  roughness: 0.35,
+});
+
+// White of the eye (stretched sphere)
+const eyeL = new THREE.Mesh(
+  new THREE.SphereGeometry(0.11, 16, 16),
+  eyeWhiteMat
+);
+eyeL.scale.set(1.0, 1.2, 0.6);
+
+const eyeR = eyeL.clone();
+
+// Iris with vertical slit (scaled circle)
+const irisL = new THREE.Mesh(
+  new THREE.CircleGeometry(0.07, 24),
+  irisMat
+);
+irisL.scale.set(0.7, 1.4, 1);          // stretch vertically
+irisL.position.set(0, 0, 0.08);
+irisL.rotation.y = 0;
+
+const irisR = irisL.clone();
+
+// Position eyes on head
+eyeL.position.set(-0.22, 4.3, 0.7);
+eyeR.position.set(0.22, 4.3, 0.7);
+
+// Attach irises to eyes so they move together
+eyeL.add(irisL);
+eyeR.add(irisR);
+
+catGroup.add(eyeL, eyeR);
+  // Nose & muzzle
+const nose = new THREE.Mesh(
+  new THREE.ConeGeometry(0.08, 0.16, 12),
+  new THREE.MeshStandardMaterial({ color: 0xff8272, roughness: 0.6 })
+);
+nose.position.set(0, 4.2, 0.78);
+nose.rotation.x = Math.PI / 2;
+
+const muzzle = new THREE.Mesh(
+  new THREE.SphereGeometry(0.18, 16, 16),
+  new THREE.MeshStandardMaterial({ color: 0xf8c89a, roughness: 0.8 })
+);
+muzzle.position.set(0, 4.12, 0.72);
+
+catGroup.add(nose, muzzle);
   const pawGeo = new THREE.CapsuleGeometry(0.16, 0.85, 6, 10);
   const pawL = new THREE.Mesh(pawGeo, catBody.material.clone());
   const pawR = pawL.clone();
-  pawL.position.set(-0.6, 2.55, 0.95);
-  pawR.position.set(0.6, 2.55, 0.95);
+ pawL.position.set(-0.6, 2.55, 1.05);
+pawR.position.set(0.6, 2.55, 1.05);
   pawL.rotation.z = 0.55;
   pawR.rotation.z = -0.55;
   const tail = new THREE.Mesh(
@@ -490,9 +543,16 @@
     })
   );
   tail.position.set(1, 2.65, -0.7);
-  tail.rotation.set(0.55, 0.4, 0.9);
+  tail.rotation.y = 0.4 + Math.sin(state.swirl * 1.8) * 0.25;
+tail.rotation.x = 0.55 + Math.cos(state.swirl * 1.3) * 0.08;
   catGroup.add(catBody, catHead, earL, earR, visor, eyeL, eyeR, pawL, pawR, tail);
-
+const chestPatch = new THREE.Mesh(
+  new THREE.SphereGeometry(0.35, 16, 16, 0, Math.PI),
+  new THREE.MeshStandardMaterial({ color: 0xfaf5ee, roughness: 0.9 })
+);
+chestPatch.position.set(0, 2.7, 0.35);
+chestPatch.rotation.x = Math.PI / 2;
+catGroup.add(chestPatch);
   const crowd = new THREE.Group();
   scene.add(crowd);
   const crowdMice = [];
@@ -801,6 +861,9 @@
     activeMice.splice(idx, 1);
     showMessage(state.combo > 5 ? 'Crowd screaming!' : 'Clean swat');
     updateHUD();
+    if (state.combo === 5) {
+  showMessage('Cat in the zone');
+}
   }
 
   function onPointer(event) {
@@ -893,7 +956,19 @@
 
   function updateAnimations(delta) {
     state.swirl += delta;
+const hypeFactor = state.hype / 100;
 
+// Cat dj body language
+catGroup.position.y = Math.sin(state.swirl * 2.5) * 0.06;
+catGroup.rotation.y =
+  Math.sin(state.swirl * 0.9) * 0.16 + state.crossfader * 0.18;
+
+pawL.rotation.x = -0.8 + Math.sin(state.swirl * 5.2) * 0.3;
+pawR.rotation.x = -0.8 + Math.cos(state.swirl * 5.4) * 0.3;
+
+// Ears perk more as hype increases
+earL.rotation.x = Math.sin(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
+earR.rotation.x = Math.cos(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
     // Decks
     const pulse = 1 + Math.sin(state.swirl * 4.4) * 0.08;
     deckA.userData.platter.rotation.y += delta * 4.6;
@@ -902,7 +977,14 @@
     deckB.userData.neonRing.scale.setScalar(
       1 + Math.cos(state.swirl * 4.1) * 0.08
     );
+// Inside updateAnimations, after state.swirl update
+const hypeFactor = state.hype / 100;
+const pupilScale = 0.7 + (1 - hypeFactor) * 0.4; // more open when hype is low
 
+irisL.scale.y = 1.0 + (1 - hypeFactor) * 0.5;
+irisL.scale.x = pupilScale;
+irisR.scale.y = irisL.scale.y;
+irisR.scale.x = irisL.scale.x;
     // Booth + floor
     boothGlow.material.opacity =
       0.18 +
@@ -954,6 +1036,11 @@
 
     updateAudioMix();
   }
+
+  if (state.combo >= 5) {
+  const scratch = Math.sin(state.swirl * 9.0) * 0.18;
+  pawL.rotation.x -= scratch;
+}
 
   function gameLoop() {
     requestAnimationFrame(gameLoop);
