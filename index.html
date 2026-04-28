@@ -778,7 +778,10 @@ updateLanesForViewport();
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
 
-  function createRunner() {
+  const isTouch =
+  'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+function createRunner() {
   const group = new THREE.Group();
   const mat = new THREE.MeshStandardMaterial({
     color: 0xcfd6e6,
@@ -786,43 +789,53 @@ updateLanesForViewport();
     metalness: 0.04,
     emissive: 0x191f2f,
     emissiveIntensity: 0.35,
-    const body = new THREE.Mesh(
-  new THREE.SphereGeometry(0.27, 16, 16),    // was 0.22
-  mat
-);
-const head = new THREE.Mesh(
-  new THREE.SphereGeometry(0.19, 12, 12),    // was 0.15
-  mat
-);
-head.position.set(0.28, 0.04, 0);            // nudge with the larger head
   });
 
+  // Slightly larger mouse body/head for easier tapping
   const body = new THREE.Mesh(
-    new THREE.SphereGeometry(0.22, 16, 16),
+    new THREE.SphereGeometry(0.27, 16, 16),  // was 0.22
     mat
   );
   const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.15, 12, 12),
+    new THREE.SphereGeometry(0.19, 12, 12),  // was 0.15
     mat
   );
-  head.position.set(0.22, 0.03, 0);
+  head.position.set(0.28, 0.04, 0);
 
-  // ... ears, tail, etc ...
+  // Ears and tail as you had them before
+  const ear1 = new THREE.Mesh(
+    new THREE.CircleGeometry(0.08, 14),
+    new THREE.MeshBasicMaterial({
+      color: 0xffa9df,
+      transparent: true,
+      opacity: 0.9,
+    })
+  );
+  const ear2 = ear1.clone();
+  ear1.position.set(0.18, 0.16, -0.08);
+  ear2.position.set(0.18, 0.16, 0.08);
+  ear1.rotation.y = -Math.PI * 0.5;
+  ear2.rotation.y = -Math.PI * 0.5;
+
+  const tailLine = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.022, 0.03, 0.52, 8),
+    new THREE.MeshBasicMaterial({ color: 0xff3fbc })
+  );
+  tailLine.position.set(-0.3, 0.02, 0);
+  tailLine.rotation.z = Math.PI * 2.6;
+
   group.add(body, head, ear1, ear2, tailLine);
 
-  // Invisible, slightly larger hitbox for easier taps
- const isTouch =
-  'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-const hitRadius = isTouch ? 0.42 : 0.32;   // bigger hitbox on phones
-const hitGeo = new THREE.SphereGeometry(hitRadius, 10, 10);
-const hitMat = new THREE.MeshBasicMaterial({
-  color: 0xff00ff,
-  transparent: true,
-  opacity: 0.0,
-});
-const hitbox = new THREE.Mesh(hitGeo, hitMat);
-hitbox.position.set(0.1, 0.06, 0);
+  // Invisible hitbox – larger on touch devices
+  const hitRadius = isTouch ? 0.42 : 0.32;
+  const hitGeo = new THREE.SphereGeometry(hitRadius, 10, 10);
+  const hitMat = new THREE.MeshBasicMaterial({
+    color: 0xff00ff,
+    transparent: true,
+    opacity: 0.0,
+  });
+  const hitbox = new THREE.Mesh(hitGeo, hitMat);
+  hitbox.position.set(0.1, 0.06, 0);
   hitbox.userData.isMouse = true;
   group.add(hitbox);
 
