@@ -175,7 +175,7 @@
   }
 }
 }
-    @media (max-width: 900px) {
+   @media (max-width: 900px) {
   html, body {
     height: auto;
   }
@@ -184,7 +184,7 @@
     overflow-y: auto;
   }
 
-  /* Let the overlay be regular flow content, not fixed over the canvas */
+  /* Let the overlay live below the scene instead of covering it */
   .overlay {
     position: static !important;
     inset: auto !important;
@@ -192,11 +192,10 @@
     padding: 0.5rem;
   }
 
-  /* Give the scene its own vertical space */
   #scene-root {
     position: relative;
     width: 100%;
-    height: 55vh;
+    height: 55vh;      /* game gets top part of screen */
   }
 
   .hud {
@@ -209,24 +208,7 @@
   .hud-bottom {
     width: 100%;
   }
-
-  /* Trim HUD text to reduce height */
-  .brand p,
-  .start-list {
-    display: none;
-  }
-
-  .brand h1 {
-    font-size: 1.2rem;
-  }
-
-  .deck-panel {
-    padding: 0.7rem 0.9rem;
-  }
-
-  .metrics {
-    gap: 0.4rem;
-  }
+}
 }
   </style>
   <script type="importmap">
