@@ -753,7 +753,16 @@ catGroup.add(chestPatch);
     });
   }
 
-  const laneXs = [-2.85, -0.95, 0.95, 2.85];
+  let laneXs = [-2.85, -0.95, 0.95, 2.85];
+
+function updateLanesForViewport() {
+  const isNarrow = window.innerWidth < 900; // same breakpoint as your CSS
+  laneXs = isNarrow
+    ? [-2.2, -0.75, 0.75, 2.2]   // pulled inward for phones
+    : [-2.85, -0.95, 0.95, 2.85];
+}
+
+updateLanesForViewport();
   const activeMice = [];
   const splats = [];
   const raycaster = new THREE.Raycaster();
@@ -1368,11 +1377,12 @@ irisR.scale.x = irisL.scale.x;
   });
 
   window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
-  });
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  updateLanesForViewport();
+});
 
   updateHUD();
   updateAudioMix();
