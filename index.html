@@ -1012,7 +1012,7 @@ earR.rotation.x = Math.cos(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
       1 + Math.cos(state.swirl * 4.1) * 0.08
     );
 // Inside updateAnimations, after state.swirl update
-const hypeFactor = state.hype / 100;
+
 const pupilScale = 0.7 + (1 - hypeFactor) * 0.4; // more open when hype is low
 
 irisL.scale.y = 1.0 + (1 - hypeFactor) * 0.5;
