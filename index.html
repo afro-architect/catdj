@@ -173,23 +173,42 @@
   </select>
 </div>
         </div>
-        <div class="hud-bottom">
-<div class="metrics" aria-label="Current game metrics">
-  <div class="metric">
-    <div class="label">Hype</div>
-    <div class="value" id="hypeValue">100%</div>
+      <div class="hud-bottom">
+  <div class="metrics" aria-label="Current game metrics">
+    <div class="metric">
+      <div class="label">Hype</div>
+      <div class="value" id="hypeValue">100%</div>
+    </div>
+    <div class="metric">
+      <div class="label">Combo</div>
+      <div class="value" id="comboValue">0x</div>
+    </div>
+    <div class="metric">
+      <div class="label">Score</div>
+      <div class="value" id="scoreValue">0000</div>
+    </div>
+    <div class="metric">
+      <div class="label">Mouse speed</div>
+      <input id="speedSlider" type="range" min="40" max="110" value="75" />
+    </div>
   </div>
-  <div class="metric">
-    <div class="label">Combo</div>
-    <div class="value" id="comboValue">0x</div>
-  </div>
-  <div class="metric">
-    <div class="label">Score</div>
-    <div class="value" id="scoreValue">0000</div>
-  </div>
-  <div class="metric">
-    <div class="label">Mouse speed</div>
-    <input id="speedSlider" type="range" min="40" max="110" value="75" />
+
+  <div class="deck-panel">
+    <div class="deck-header">
+      <strong>Crossfader</strong>
+      <span>Shift the vibe left or right</span>
+    </div>
+    <div class="slider-row">
+      <div class="slider-wrap">
+        <label for="leftGain">Deck A</label>
+        <input id="leftGain" type="range" min="0" max="100" value="80">
+      </div>
+      <div class="cross-value" id="crossValue">Centered</div>
+      <div class="slider-wrap">
+        <label for="rightGain">Deck B</label>
+        <input id="rightGain" type="range" min="0" max="100" value="80">
+      </div>
+    </div>
   </div>
 </div>
           <div class="deck-panel">
