@@ -1270,7 +1270,19 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
   }
 
   // Spotlights pulse with hype
-  const hypeNorm = Math.max(0, Math.min(1, state.hype / 100));
+    const hypeNorm = Math.max(0, Math.min(1, state.hype / 100));
+
+  state.hype = Math.max(
+    0,
+    Math.min(
+      100,
+      state.hype -
+        dt * 1.2 +
+        ((Number(leftGain.value) + Number(rightGain.value)) / 200) *
+          dt *
+          (0.3 + hypeNorm * 0.7)
+    )
+  );
   const spotPulse = 0.8 + Math.sin(state.swirl * 2.5) * 0.25 * hypeNorm;
   spotLeft.intensity = 20 * spotPulse;
   spotRight.intensity = 19 * spotPulse;
