@@ -812,6 +812,17 @@ updateLanesForViewport();
     group.add(body, head, ear1, ear2, tailLine);
     group.rotation.y = Math.PI / 1;
     return { group, mat };
+    const hitRadius = isTouch ? 0.42 : 0.32;
+const hitGeo = new THREE.SphereGeometry(hitRadius, 10, 10);
+const hitMat = new THREE.MeshBasicMaterial({
+  color: 0xff00ff,
+  transparent: true,
+  opacity: 0.0,
+});
+const hitbox = new THREE.Mesh(hitGeo, hitMat);
+hitbox.position.set(0.1, 0.06, 0);
+hitbox.userData.isMouse = true;
+group.add(hitbox);
   }
 
   function spawnMouse() {
