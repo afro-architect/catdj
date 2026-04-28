@@ -1102,10 +1102,38 @@ playScratchSfx();
 }
   }
 
-  function getMouseHitboxes() {
+ function getMouseHitboxes() {
   return activeMice
     .map((m) => m.mesh.userData?.hitbox)
     .filter(Boolean);
+}
+
+function handleMouseHit(hitObject) {
+  const idx = activeMice.findIndex(
+    (m) => m.mesh.userData?.hitbox === hitObject
+  );
+  if (idx === -1) return;
+  const runner = activeMice[idx];
+
+  state.score += 120;
+  state.combo += 1;
+  state.hype = Math.min(100, state.hype + 2.8);
+
+  playHitSfx();
+  playScratchSfx();
+  spawnSplat(runner.mesh.position);
+
+  stage.remove(runner.mesh);
+  activeMice.splice(idx, 1);
+
+  showMessage(
+    state.combo >= 5 ? 'Crowd screaming! Clean swat' : 'Clean swat'
+  );
+  updateHUD();
+
+  if (state.combo >= 5) {
+    showMessage('Cat in the zone');
+  }
 }
 
 function onPointer(event) {
@@ -1116,14 +1144,19 @@ function onPointer(event) {
   pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
   raycaster.setFromCamera(pointer, camera);
-  const intersects = raycaster.intersectObjects(getMouseHitboxes(), false);
+  const intersects = raycaster.intersectObjects(
+    getMouseHitboxes(),
+    false
+  );
 
   if (intersects.length > 0) {
     const hitbox = intersects[0].object;
     handleMouseHit(hitbox);
   }
 }
+
 renderer.domElement.addEventListener('pointerdown', onPointer);
+}
 
   function missMouse(runner, index) {
     stage.remove(runner.mesh);
