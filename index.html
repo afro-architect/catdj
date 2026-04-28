@@ -456,12 +456,22 @@ catBody.rotation.x = -0.18; // lean slightly toward the decks
   earR.position.set(0.44, 4.95, 0.02);
   earL.rotation.z = -0.35;
   earR.rotation.z = 0.35;
-  const visor = new THREE.Mesh(
-    new THREE.TorusGeometry(0.72, 0.08, 16, 100, Math.PI),
-    new THREE.MeshBasicMaterial({
-      color: 0x37f5ff,
-      transparent: true,
-      opacity: 0.95,
+ // Neon chain / necklace
+const chain = new THREE.Mesh(
+  new THREE.TorusGeometry(0.7, 0.05, 14, 40),
+  new THREE.MeshStandardMaterial({
+    color: 0xffd166,
+    metalness: 0.9,
+    roughness: 0.25,
+    emissive: 0xffb347,
+    emissiveIntensity: 0.6,
+  })
+);
+// Position slightly below the head, around the chest
+chain.position.set(0, 3.1, 0.25);
+chain.rotation.x = Math.PI / 2.3;
+
+catGroup.add(chain);
     })
   );
   visor.position.set(0, 4.36, 0.66);
