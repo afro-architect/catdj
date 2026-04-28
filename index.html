@@ -1136,7 +1136,7 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
     if (state.spawnTimer >= state.spawnInterval / (tension * beatBoost)) {
       state.spawnTimer = 0;
       spawnMouse();
-    }
+    
 
     for (let i = activeMice.length - 1; i >= 0; i--) {
       const runner = activeMice[i];
