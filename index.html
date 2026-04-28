@@ -166,7 +166,7 @@
    /* Inset the game horizontally a bit */
   #scene-root {
     position: relative;
-    width: 80vw;        /* 90% of viewport width */
+    width: 90vw;        /* 90% of viewport width */
     margin: 0 auto;     /* center */
     height: 55vh;
   }
@@ -360,13 +360,23 @@
   scene.fog = new THREE.FogExp2(0x06070d, 0.055);
 
   const camera = new THREE.PerspectiveCamera(
-    50,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    100
-  );
-  camera.position.set(0, 4.5, 12.5);
-  camera.lookAt(0, 2.2, 0.3);
+  55, // slightly wider base FOV
+  window.innerWidth / window.innerHeight,
+  0.1,
+  100
+);
+camera.position.set(0, 4.8, 13.2);
+camera.lookAt(0, 2.2, 0.3);
+
+function updateCameraForViewport() {
+  const isNarrow = window.innerWidth < 900;
+  // even wider FOV on phones so you see more deck width
+  camera.fov = isNarrow ? 62 : 55;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+}
+
+updateCameraForViewport();
 
   // Post processing: bloom
   const composer = new EffectComposer(renderer);
@@ -1245,13 +1255,13 @@ irisR.scale.x = irisL.scale.x;
     spotRight.target.updateMatrixWorld();
 
     // Camera orbit
-    const camOrbit = state.swirl * 0.18;
-    const camRadius = 12.5;
-    camera.position.x =
-      Math.cos(camOrbit) * camRadius * 0.18 + state.crossfader * 0.8;
-    camera.position.z = 12.5 + Math.sin(camOrbit) * 0.6;
-    camera.position.y = 4.4 + Math.sin(state.swirl * 0.35) * 0.2;
-    camera.lookAt(0, 2.6, 0.3);
+    const camOrbit = state.swirl * 0.16;
+const camRadius = 12.8;
+
+camera.position.x = Math.cos(camOrbit) * camRadius * (0.12 * state.crossfader + 0.7);
+camera.position.z = 13.0 + Math.sin(camOrbit) * 0.45;
+camera.position.y = 4.6 + Math.sin(state.swirl * 0.3) * 0.2;
+camera.lookAt(0, 2.6, 0.3);
 
     updateAudioMix();
   }
@@ -1376,16 +1386,13 @@ irisR.scale.x = irisL.scale.x;
     );
   });
 
-  window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+ window.addEventListener('resize', () => {
+  updateCameraForViewport();
   renderer.setSize(window.innerWidth, window.innerHeight);
   composer.setSize(window.innerWidth, window.innerHeight);
-  updateLanesForViewport();
-});
-
   updateHUD();
   updateAudioMix();
+});
 
   // Example: tap the status message or add a small button to toggle compact mode
 statusMessage.addEventListener('click', () => {
