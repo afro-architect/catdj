@@ -123,13 +123,33 @@
     .secondary-text { color:var(--text-sub); font-size:var(--text-sm); }
     .hidden-ui { opacity:0.38; }
     @media (max-width: 820px) {
+       .hud {
+    gap: 0.75rem;
+  }
       .hud-top, .hud-bottom { flex-direction:column; }
-      .metrics, .deck-panel, .brand { width:100%; min-width:0; }
+      .metrics, .brand { width:100%; min-width:0; }
+       .brand p {
+    font-size: 0.85rem;
+  }
       .message { bottom: 13.8rem; width:min(88vw, 28rem); text-align:center; }
       .controls { align-self:flex-start; }
       .slider-row { grid-template-columns: 1fr; }
       .cross-value { min-width:unset; }
     }
+     .deck-panel {
+    padding: 0.8rem 1rem;
+  }
+    @media (max-width: 700px) {
+  .hud.compact .brand p,
+  .hud.compact .start-list,
+  .hud.compact .deck-header span {
+    display: none;
+  }
+  .hud.compact .deck-panel {
+    margin-top: 0.4rem;
+  }
+}
+}
   </style>
   <script type="importmap">
     {
@@ -1304,6 +1324,11 @@ irisR.scale.x = irisL.scale.x;
 
   updateHUD();
   updateAudioMix();
+
+  // Example: tap the status message or add a small button to toggle compact mode
+statusMessage.addEventListener('click', () => {
+  document.querySelector('.hud').classList.toggle('compact');
+});
 </script>
 </body>
 </html>
