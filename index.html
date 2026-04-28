@@ -1226,43 +1226,39 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
     updateHUD();
   }
 
-  function updateAnimations(delta) {
-    state.swirl += delta;
-const hypeFactor = state.hype / 100;
-
-// Cat dj body language
-catGroup.position.y = Math.sin(state.swirl * 2.5) * 0.06;
-catGroup.rotation.y =
-  Math.sin(state.swirl * 0.9) * 0.16 + state.crossfader * 0.18;
-
-pawL.rotation.x = -0.8 + Math.sin(state.swirl * 5.2) * 0.3;
-pawR.rotation.x = -0.8 + Math.cos(state.swirl * 5.4) * 0.3;
-
-// Ears perk more as hype increases
-earL.rotation.x = Math.sin(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
-earR.rotation.x = Math.cos(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
-    // Decks
-    const pulse = 1 + Math.sin(state.swirl * 4.4) * 0.08;
-    deckA.userData.platter.rotation.y += delta * 4.6;
-    deckB.userData.platter.rotation.y -= delta * 5.1;
-    deckA.userData.neonRing.scale.setScalar(pulse);
-    deckB.userData.neonRing.scale.setScalar(
-      1 + Math.cos(state.swirl * 4.1) * 0.08
-    );
-
-    // Chain pulse
-  const chain = catGroup.userData.chain;
-  if (chain) {
-    const baseScale = 1.0 + Math.sin(state.swirl * 3.2) * 0.05;
-    const hypeScale = 1.0 + hypeFactor * 0.15;
-    function updateAnimations(delta) {
+ function updateAnimations(delta) {
   state.swirl += delta;
-
   const hypeFactor = state.hype / 100;
 
-  // ... all your existing animation code (decks, booth, cat, crowd, lights, camera) ...
+  // Cat DJ body language
+  catGroup.position.y = Math.sin(state.swirl * 2.5) * 0.06;
+  catGroup.rotation.y =
+    Math.sin(state.swirl * 0.9) * 0.16 + state.crossfader * 0.18;
 
-  // Chain pulse (safe)
+  pawL.rotation.x = -0.8 + Math.sin(state.swirl * 5.2) * 0.3;
+  pawR.rotation.x = -0.8 + Math.cos(state.swirl * 5.4) * 0.3;
+
+  // Ears perk more as hype increases
+  earL.rotation.x = Math.sin(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
+  earR.rotation.x = Math.cos(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
+
+  // Pupils / iris
+  const pupilScale = 0.7 + (1 - hypeFactor) * 0.4;
+  irisL.scale.y = 1.0 + (1 - hypeFactor) * 0.5;
+  irisL.scale.x = pupilScale;
+  irisR.scale.y = irisL.scale.y;
+  irisR.scale.x = irisL.scale.x;
+
+  // Decks
+  const pulse = 1 + Math.sin(state.swirl * 4.4) * 0.08;
+  deckA.userData.platter.rotation.y += delta * 4.6;
+  deckB.userData.platter.rotation.y -= delta * 5.1;
+  deckA.userData.neonRing.scale.setScalar(pulse);
+  deckB.userData.neonRing.scale.setScalar(
+    1 + Math.cos(state.swirl * 4.1) * 0.08
+  );
+
+  // Chain pulse
   const chain = catGroup.userData.chain;
   if (chain) {
     const baseScale = 1.0 + Math.sin(state.swirl * 3.2) * 0.05;
@@ -1270,9 +1266,56 @@ earR.rotation.x = Math.cos(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
     chain.scale.set(baseScale * hypeScale, baseScale, baseScale);
   }
 
+  // Booth + floor
+  boothGlow.material.opacity =
+    0.18 +
+    (state.hype / 100) * 0.22 +
+    Math.abs(state.crossfader) * 0.08;
+  grid.rotation.z += delta * 0.08;
+  grid.material.opacity = 0.08 + (state.hype / 100) * 0.08;
+
+  // Crowd
+  crowdMice.forEach((item, i) => {
+    const base = 0.24 + (state.hype / 100) * 0.16;
+    item.mesh.position.y =
+      base +
+      Math.abs(
+        Math.sin(state.swirl * item.speed + item.offset)
+      ) * 0.4;
+    item.mesh.rotation.y = Math.sin(state.swirl * 1.8 + i) * 0.22;
+  });
+
+  // Lights
+  spotLeft.intensity =
+    26 + (state.hype / 100) * 20 + Math.sin(state.swirl * 5.2) * 4;
+  spotRight.intensity =
+    24 + (state.hype / 100) * 20 + Math.cos(state.swirl * 5.1) * 4;
+  rim.intensity =
+    9 + Math.abs(state.crossfader) * 8 + (state.hype / 100) * 5;
+
+  const sweep = state.swirl * 0.25;
+  spotLeft.target.position.x = -1.5 + Math.sin(sweep) * 1.2;
+  spotRight.target.position.x = 1.5 + Math.cos(sweep) * 1.2;
+  spotLeft.target.updateMatrixWorld();
+  spotRight.target.updateMatrixWorld();
+
+  // Camera orbit
+  const camOrbit = state.swirl * 0.16;
+  const camRadius = 12.8;
+  camera.position.x =
+    Math.cos(camOrbit) * camRadius * (0.12 * state.crossfader + 0.7);
+  camera.position.z = 13.0 + Math.sin(camOrbit) * 0.45;
+  camera.position.y = 4.6 + Math.sin(state.swirl * 0.3) * 0.2;
+  camera.lookAt(0, 2.6, 0.3);
+
+  // Combo-based extra scratch motion
+  if (state.combo >= 5) {
+    const scratch = Math.sin(state.swirl * 9.0) * 0.18;
+    pawL.rotation.x -= scratch;
+  }
+
   updateAudioMix();
 }
-  }
     
 // Inside updateAnimations, after state.swirl update
 
