@@ -812,7 +812,13 @@ updateLanesForViewport();
     group.add(body, head, ear1, ear2, tailLine);
     group.rotation.y = 0;
     return { group, mat };
-    const hitRadius = isTouch ? 0.42 : 0.32;
+
+    // Detect touch device once, near the top of your script
+const isTouch =
+  'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+// Inside createRunner()
+const hitRadius = isTouch ? 0.9 : 0.32;  // HUGE on mobile, original on desktop
 const hitGeo = new THREE.SphereGeometry(hitRadius, 10, 10);
 const hitMat = new THREE.MeshBasicMaterial({
   color: 0xff00ff,
@@ -823,7 +829,6 @@ const hitbox = new THREE.Mesh(hitGeo, hitMat);
 hitbox.position.set(0.1, 0.06, 0);
 hitbox.userData.isMouse = true;
 group.add(hitbox);
-  }
 
   function spawnMouse() {
     const lane = laneXs[Math.floor(Math.random() * laneXs.length)];
