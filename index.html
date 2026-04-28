@@ -189,21 +189,22 @@
 
   <div class="deck-panel">
     <div class="deck-header">
-     
+      <strong>Crossfader</strong>
+      <span>Shift the vibe left or right</span>
+    </div>
+    <div class="slider-row">
+      <div class="slider-wrap">
+        <label for="leftGain">Deck A</label>
+        <input id="leftGain" type="range" min="0" max="100" value="80">
+      </div>
+      <div class="cross-value" id="crossValue">Centered</div>
+      <div class="slider-wrap">
+        <label for="rightGain">Deck B</label>
+        <input id="rightGain" type="range" min="0" max="100" value="80">
       </div>
     </div>
   </div>
 </div>
-          <div class="deck-panel">
-            <div class="deck-header"><strong>Crossfader</strong><span>Shift the vibe left or right</span></div>
-            <div class="slider-row">
-              <div class="slider-wrap"><label for="leftGain">Deck A</label><input id="leftGain" type="range" min="0" max="100" value="80"></div>
-              <div class="cross-value" id="crossValue">Centered</div>
-              <div class="slider-wrap"><label for="rightGain">Deck B</label><input id="rightGain" type="range" min="0" max="100" value="80"></div>
-            </div>
-          </div>
-        </div>
-      </div>
       <div class="message" id="statusMessage" role="status" aria-live="polite"></div>
     </section>
     <section class="start-screen" id="startScreen" aria-label="Start game screen">
