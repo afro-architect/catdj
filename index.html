@@ -49,6 +49,7 @@
       font-size: var(--text-base);
       line-height: 1.5;
     }
+    
     canvas { display: block; width: 100vw; height: 100vh; }
     button { cursor: pointer; border: none; }
     .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
@@ -144,6 +145,26 @@
   .hud.compact .start-list,
   .hud.compact .deck-header span {
     display: none;
+    .hud.mini .brand p,
+  .hud.mini .start-list,
+  .hud.mini .deck-header span {
+    display: none;
+  }
+
+  .hud.mini .brand h1 {
+    font-size: 1.1rem;
+  }
+
+  .hud.mini .deck-panel {
+    padding: 0.6rem 0.8rem;
+  }
+    html, body {
+  height: 100%;
+       overflow-y: auto;  /* allow vertical scroll */
+}
+   
+  }
+}
   }
   .hud.compact .deck-panel {
     margin-top: 0.4rem;
