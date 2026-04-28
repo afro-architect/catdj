@@ -146,7 +146,7 @@
     overflow-y: auto;
   }
 
-  /* Let overlay live below the scene instead of covering it */
+  /* Let the overlay live below the scene instead of covering it */
   .overlay {
     position: static !important;
     inset: auto !important;
@@ -154,28 +154,19 @@
     padding: 0.5rem;
   }
 
-  /* HUD becomes regular content inside overlay */
+  /* HUD is now regular content inside overlay */
   .hud {
     position: static !important;
     pointer-events: auto;
     padding: 0;
     gap: 0.75rem;
-    width: 100%;
   }
 
-   /* Inset the game horizontally a bit */
   #scene-root {
     position: relative;
-    width: 90vw;        /* 90% of viewport width */
-    margin: 0 auto;     /* center */
+    width: 100%;
     height: 55vh;
   }
-
-  canvas {
-    width: 100% !important;
-    height: 100% !important;
-  }
-}
 
   .hud-top,
   .hud-bottom {
@@ -183,7 +174,6 @@
     flex-direction: column;
   }
 
-  /* Trim HUD text for mobile */
   .brand p,
   .start-list {
     display: none;
@@ -200,6 +190,7 @@
   .metrics {
     gap: 0.4rem;
   }
+}
 }
 }
   </style>
@@ -360,23 +351,13 @@
   scene.fog = new THREE.FogExp2(0x06070d, 0.055);
 
   const camera = new THREE.PerspectiveCamera(
-  55, // slightly wider base FOV
-  window.innerWidth / window.innerHeight,
-  0.1,
-  100
-);
-camera.position.set(0, 4.8, 13.2);
-camera.lookAt(0, 2.2, 0.3);
-
-function updateCameraForViewport() {
-  const isNarrow = window.innerWidth < 900;
-  // even wider FOV on phones so you see more deck width
-  camera.fov = isNarrow ? 62 : 55;
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-}
-
-updateCameraForViewport();
+    50,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
+  );
+  camera.position.set(0, 4.5, 12.5);
+  camera.lookAt(0, 2.2, 0.3);
 
   // Post processing: bloom
   const composer = new EffectComposer(renderer);
@@ -763,87 +744,47 @@ catGroup.add(chestPatch);
     });
   }
 
-  let laneXs = [-2.85, -0.95, 0.95, 2.85];
-
-function updateLanesForViewport() {
-  const isNarrow = window.innerWidth < 900; // same breakpoint as your CSS
-  laneXs = isNarrow
-    ? [-2.2, -0.75, 0.75, 2.2]   // pulled inward for phones
-    : [-2.85, -0.95, 0.95, 2.85];
-}
-
-updateLanesForViewport();
+  const laneXs = [-2.85, -0.95, 0.95, 2.85];
   const activeMice = [];
   const splats = [];
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
 
-  const isTouch =
-  'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-function createRunner() {
-  const group = new THREE.Group();
-  const mat = new THREE.MeshStandardMaterial({
-    color: 0xcfd6e6,
-    roughness: 0.85,
-    metalness: 0.04,
-    emissive: 0x191f2f,
-    emissiveIntensity: 0.35,
-  });
-
-  // Slightly larger mouse body/head for easier tapping
-  const body = new THREE.Mesh(
-    new THREE.SphereGeometry(0.27, 16, 16),  // was 0.22
-    mat
-  );
-  const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.19, 12, 12),  // was 0.15
-    mat
-  );
-  head.position.set(0.28, 0.04, 0);
-
-  // Ears and tail as you had them before
-  const ear1 = new THREE.Mesh(
-    new THREE.CircleGeometry(0.08, 14),
-    new THREE.MeshBasicMaterial({
-      color: 0xffa9df,
-      transparent: true,
-      opacity: 0.9,
-    })
-  );
-  const ear2 = ear1.clone();
-  ear1.position.set(0.18, 0.16, -0.08);
-  ear2.position.set(0.18, 0.16, 0.08);
-  ear1.rotation.y = -Math.PI * 0.5;
-  ear2.rotation.y = -Math.PI * 0.5;
-
-  const tailLine = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.022, 0.03, 0.52, 8),
-    new THREE.MeshBasicMaterial({ color: 0xff3fbc })
-  );
-  tailLine.position.set(-0.3, 0.02, 0);
-  tailLine.rotation.z = Math.PI * 2.6;
-
-  group.add(body, head, ear1, ear2, tailLine);
-
-  // Invisible hitbox – larger on touch devices
-  const hitRadius = isTouch ? 0.42 : 0.32;
-  const hitGeo = new THREE.SphereGeometry(hitRadius, 10, 10);
-  const hitMat = new THREE.MeshBasicMaterial({
-    color: 0xff00ff,
-    transparent: true,
-    opacity: 0.0,
-  });
-  const hitbox = new THREE.Mesh(hitGeo, hitMat);
-  hitbox.position.set(0.1, 0.06, 0);
-  hitbox.userData.isMouse = true;
-  group.add(hitbox);
-
-  group.rotation.y = Math.PI * 0;
-  group.userData.hitbox = hitbox;
-
-  return { group, mat };
-}
+  function createRunner() {
+    const group = new THREE.Group();
+    const mat = new THREE.MeshStandardMaterial({
+      color: 0xcfd6e6,
+      roughness: 0.85,
+      metalness: 0.04,
+      emissive: 0x191f2f,
+      emissiveIntensity: 0.35,
+    });
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), mat);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 12), mat);
+    head.position.set(0.22, 0.03, 0);
+    const ear1 = new THREE.Mesh(
+      new THREE.CircleGeometry(0.08, 14),
+      new THREE.MeshBasicMaterial({
+        color: 0xffa9df,
+        transparent: true,
+        opacity: 0.9,
+      })
+    );
+    const ear2 = ear1.clone();
+    ear1.position.set(0.18, 0.16, -0.08);
+    ear2.position.set(0.18, 0.16, 0.08);
+    ear1.rotation.y = -Math.PI / 2;
+    ear2.rotation.y = -Math.PI / 2;
+    const tailLine = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.022, 0.03, 0.52, 8),
+      new THREE.MeshBasicMaterial({ color: 0xff3fbc })
+    );
+    tailLine.position.set(-0.3, 0.02, 0);
+    tailLine.rotation.z = Math.PI / 2.6;
+    group.add(body, head, ear1, ear2, tailLine);
+    group.rotation.y = Math.PI / 2;
+    return { group, mat };
+  }
 
   function spawnMouse() {
     const lane = laneXs[Math.floor(Math.random() * laneXs.length)];
@@ -1080,31 +1021,46 @@ function createRunner() {
     hypeEl.textContent = Math.max(0, Math.round(state.hype)) + '%';
   }
 
- 
-
- function getMouseHitboxes() {
-  return activeMice
-    .map((m) => m.mesh.userData?.hitbox)
-    .filter(Boolean);
+  function handleMouseHit(target) {
+    const idx = activeMice.findIndex(
+      (m) => m.mesh === target || m.mesh.children.includes(target)
+    );
+    if (idx === -1) return;
+    const runner = activeMice[idx];
+    state.score += 120 + state.combo * 18;
+    state.combo += 1;
+    state.hype = Math.min(100, state.hype + 2.8);
+   playHitSfx();
+playScratchSfx();
+    spawnSplat(runner.mesh.position);
+    stage.remove(runner.mesh);
+    activeMice.splice(idx, 1);
+    showMessage(state.combo > 5 ? 'Crowd screaming!' : 'Clean swat');
+    updateHUD();
+    if (state.combo === 5) {
+  showMessage('Cat in the zone');
 }
-
-function onPointer(event) {
-  if (!state.started || state.paused) return;
-
-  const rect = renderer.domElement.getBoundingClientRect();
-  pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-  raycaster.setFromCamera(pointer, camera);
-  const intersects = raycaster.intersectObjects(getMouseHitboxes(), false);
-
-  if (intersects.length > 0) {
-    const hitbox = intersects[0].object;
-    handleMouseHit(hitbox);
   }
-}
 
-renderer.domElement.addEventListener('pointerdown', onPointer);
+  function onPointer(event) {
+    if (!state.started || state.paused) return;
+    const rect = renderer.domElement.getBoundingClientRect();
+    pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(pointer, camera);
+    const intersects = raycaster.intersectObjects(stage.children, true);
+    const hit = intersects.find(
+      (item) =>
+        item.object.parent?.userData?.isMouse || item.object.userData?.isMouse
+    );
+    if (hit) {
+      handleMouseHit(
+        hit.object.userData?.isMouse ? hit.object : hit.object.parent
+      );
+    }
+  }
+
+  renderer.domElement.addEventListener('pointerdown', onPointer);
 
   function missMouse(runner, index) {
     stage.remove(runner.mesh);
@@ -1128,53 +1084,89 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
     }
   }
 
- function updateGameLogic(delta) {
-  if (!state.started || state.paused) return;
-  state.spawnTimer += delta;
-  const tension = 1 + (100 - state.hype) / 180;
-  const beatBoost = 1 + Math.abs(state.crossfader) * 0.25;
-
-  if (state.spawnTimer >= 0.8) {
-  state.spawnTimer = 0;
-  spawnMouse();
-  }
-
-  for (let i = activeMice.length - 1; i >= 0; i--) {
-    const runner = activeMice[i];
-    runner.z += delta * runner.speed * state.slowFactor;
-    runner.bob += delta * 10;
-    runner.mesh.position.z = runner.z;
-    runner.mesh.position.y = 1.7 + Math.sin(runner.bob) * 0.05;
-    runner.mesh.rotation.z = Math.sin(runner.bob * 0.7) * 0.15;
-    if (runner.z >= 1.4) missMouse(runner, i);
-  }
-
-  for (let i = splats.length - 1; i >= 0; i--) {
-    const splat = splats[i];
-    splat.life -= dt;
-    splat.mesh.scale.multiplyScalar(1.04);
-    splat.mesh.material.opacity = Math.max(0, splat.life * 2);
-    if (splat.life <= 0) {
-      stage.remove(splat.mesh);
-      splats.splice(i, 1);
+  function updateGameLogic(dt) {
+    if (!state.started || state.paused) return;
+    state.spawnTimer += dt;
+    const tension = 1 + (100 - state.hype) / 180;
+    const beatBoost = 1 + Math.abs(state.crossfader) * 0.25;
+    if (state.spawnTimer >= state.spawnInterval / (tension * beatBoost)) {
+      state.spawnTimer = 0;
+      spawnMouse();
     }
+
+    for (let i = activeMice.length - 1; i >= 0; i--) {
+      const runner = activeMice[i];
+      runner.z += dt * runner.speed * state.slowFactor;
+      runner.bob += dt * 10;
+      runner.mesh.position.z = runner.z;
+      runner.mesh.position.y = 1.7 + Math.sin(runner.bob) * 0.05;
+      runner.mesh.rotation.z = Math.sin(runner.bob * 0.7) * 0.15;
+      if (runner.z >= 1.4) missMouse(runner, i);
+    }
+
+    for (let i = splats.length - 1; i >= 0; i--) {
+      const splat = splats[i];
+      splat.life -= dt;
+      splat.mesh.scale.multiplyScalar(1.04);
+      splat.mesh.material.opacity = Math.max(0, splat.life * 2);
+      if (splat.life <= 0) {
+        stage.remove(splat.mesh);
+        splats.splice(i, 1);
+      }
+    }
+
+    state.hype = Math.max(
+      0,
+      Math.min(
+        100,
+        state.hype -
+          dt * 1.2 +
+          ((Number(leftGain.value) + Number(rightGain.value)) / 200) *
+            dt *
+            0.65
+      )
+    );
+    state.score += dt * Math.max(0, state.combo) * 4;
+    updateHUD();
   }
 
- const hypeNorm = Math.max(0, Math.min(1, state.hype / 100));
+  function updateAnimations(delta) {
+    state.swirl += delta;
+const hypeFactor = state.hype / 100;
 
-  state.hype = Math.max(
-    0,
-    Math.min(
-      100,
-      state.hype -
-        dt * 1.2 +
-        ((Number(leftGain.value) + Number(rightGain.value)) / 200) *
-          dt *
-          (0.3 + hypeNorm * 0.7)
-    )
-  );
-  
-  // Chain pulse
+// Cat dj body language
+catGroup.position.y = Math.sin(state.swirl * 2.5) * 0.06;
+catGroup.rotation.y =
+  Math.sin(state.swirl * 0.9) * 0.16 + state.crossfader * 0.18;
+
+pawL.rotation.x = -0.8 + Math.sin(state.swirl * 5.2) * 0.3;
+pawR.rotation.x = -0.8 + Math.cos(state.swirl * 5.4) * 0.3;
+
+// Ears perk more as hype increases
+earL.rotation.x = Math.sin(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
+earR.rotation.x = Math.cos(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
+    // Decks
+    const pulse = 1 + Math.sin(state.swirl * 4.4) * 0.08;
+    deckA.userData.platter.rotation.y += delta * 4.6;
+    deckB.userData.platter.rotation.y -= delta * 5.1;
+    deckA.userData.neonRing.scale.setScalar(pulse);
+    deckB.userData.neonRing.scale.setScalar(
+      1 + Math.cos(state.swirl * 4.1) * 0.08
+    );
+
+    // Chain pulse
+  const chain = catGroup.userData.chain;
+  if (chain) {
+    const baseScale = 1.0 + Math.sin(state.swirl * 3.2) * 0.05;
+    const hypeScale = 1.0 + hypeFactor * 0.15;
+    function updateAnimations(delta) {
+  state.swirl += delta;
+
+  const hypeFactor = state.hype / 100;
+
+  // ... all your existing animation code (decks, booth, cat, crowd, lights, camera) ...
+
+  // Chain pulse (safe)
   const chain = catGroup.userData.chain;
   if (chain) {
     const baseScale = 1.0 + Math.sin(state.swirl * 3.2) * 0.05;
@@ -1182,198 +1174,108 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
     chain.scale.set(baseScale * hypeScale, baseScale, baseScale);
   }
 
-  // Booth + floor
-  boothGlow.material.opacity =
-    0.18 +
-    (state.hype / 100) * 0.22 +
-    Math.abs(state.crossfader) * 0.08;
-  grid.rotation.z += delta * 0.08;
-  grid.material.opacity = 0.08 + (state.hype / 100) * 0.08;
-
-  // Crowd
-  crowdMice.forEach((item, i) => {
-    const base = 0.24 + (state.hype / 100) * 0.16;
-    item.mesh.position.y =
-      base +
-      Math.abs(
-        Math.sin(state.swirl * item.speed + item.offset)
-      ) * 0.4;
-    item.mesh.rotation.y = Math.sin(state.swirl * 1.8 + i) * 0.22;
-  });
-
-  // Lights
-  spotLeft.intensity =
-    26 + (state.hype / 100) * 20 + Math.sin(state.swirl * 5.2) * 4;
-  spotRight.intensity =
-    24 + (state.hype / 100) * 20 + Math.cos(state.swirl * 5.1) * 4;
-  rim.intensity =
-    9 + Math.abs(state.crossfader) * 8 + (state.hype / 100) * 5;
-
-  const sweep = state.swirl * 0.25;
-  spotLeft.target.position.x = -1.5 + Math.sin(sweep) * 1.2;
-  spotRight.target.position.x = 1.5 + Math.cos(sweep) * 1.2;
-  spotLeft.target.updateMatrixWorld();
-  spotRight.target.updateMatrixWorld();
-
-  // Camera orbit
-  const camOrbit = state.swirl * 0.16;
-  const camRadius = 12.8;
-  camera.position.x =
-    Math.cos(camOrbit) * camRadius * (0.12 * state.crossfader + 0.7);
-  camera.position.z = 13.0 + Math.sin(camOrbit) * 0.45;
-  camera.position.y = 4.6 + Math.sin(state.swirl * 0.3) * 0.2;
-  camera.lookAt(0, 2.6, 0.3);
-
-  // Extra scratch motion on big combos
-  if (state.combo >= 5) {
-    const scratch = Math.sin(state.swirl * 9.0) * 0.18;
-    pawL.rotation.x -= scratch;
-  }
-
   updateAudioMix();
 }
-
-  function updateAnimations(delta) {
-  // Swirl timer for overall motion
-  state.swirl += delta * (0.85 + Math.abs(state.crossfader) * 0.35);
-
-  // Cat bob and subtle movement
-  const bob = Math.sin(state.swirl * 2.2) * 0.15;
-  const sway = Math.sin(state.swirl * 1.4) * 0.12;
-  catGroup.position.y = 0.02 + bob * 0.25;
-  catGroup.rotation.y = sway * 0.4;
-
-  // Paw “mixing” motion
-  const pawMix = Math.sin(state.swirl * 3.1) * 0.35;
-  const pawLift = Math.cos(state.swirl * 2.7) * 0.22;
-  pawL.rotation.x = -0.9 + pawMix * 0.6 + pawLift * 0.2;
-  pawR.rotation.x = -0.9 - pawMix * 0.6 + pawLift * 0.2;
-
-  // Tail wag
-  tail.rotation.y = 0.4 + Math.sin(state.swirl * 1.8) * 0.25;
-  tail.rotation.x = 0.55 + Math.cos(state.swirl * 1.3) * 0.08;
-
-  // Chain and medallion swing
-  if (catGroup.userData.chain) {
-    const chain = catGroup.userData.chain;
-    chain.rotation.z = Math.sin(state.swirl * 2.0) * 0.12;
   }
-  if (catGroup.userData.medallion) {
-    const med = catGroup.userData.medallion;
-    med.rotation.z = Math.sin(state.swirl * 2.4) * 0.18;
+    
+// Inside updateAnimations, after state.swirl update
+
+const pupilScale = 0.7 + (1 - hypeFactor) * 0.4; // more open when hype is low
+
+irisL.scale.y = 1.0 + (1 - hypeFactor) * 0.5;
+irisL.scale.x = pupilScale;
+irisR.scale.y = irisL.scale.y;
+irisR.scale.x = irisL.scale.x;
+    // Booth + floor
+    boothGlow.material.opacity =
+      0.18 +
+      (state.hype / 100) * 0.22 +
+      Math.abs(state.crossfader) * 0.08;
+    grid.rotation.z += delta * 0.08;
+    grid.material.opacity = 0.08 + (state.hype / 100) * 0.08;
+
+    // Cat
+    catGroup.position.y = Math.sin(state.swirl * 2.5) * 0.06;
+    catGroup.rotation.y =
+      Math.sin(state.swirl * 0.9) * 0.16 + state.crossfader * 0.18;
+    pawL.rotation.x = -0.8 + Math.sin(state.swirl * 5.2) * 0.3;
+    pawR.rotation.x = -0.8 + Math.cos(state.swirl * 5.4) * 0.3;
+    earL.rotation.x = Math.sin(state.swirl * 3.8) * 0.08;
+    earR.rotation.x = Math.cos(state.swirl * 3.8) * 0.08;
+   
+
+    // Crowd
+    crowdMice.forEach((item, i) => {
+      const base = 0.24 + (state.hype / 100) * 0.16;
+      item.mesh.position.y =
+        base +
+        Math.abs(Math.sin(state.swirl * item.speed + item.offset)) * 0.4;
+      item.mesh.rotation.y = Math.sin(state.swirl * 1.8 + i) * 0.22;
+    });
+
+    // Lights
+    spotLeft.intensity =
+      26 + (state.hype / 100) * 20 + Math.sin(state.swirl * 5.2) * 4;
+    spotRight.intensity =
+      24 + (state.hype / 100) * 20 + Math.cos(state.swirl * 5.1) * 4;
+    rim.intensity = 9 + Math.abs(state.crossfader) * 8 + (state.hype / 100) * 5;
+
+    const sweep = state.swirl * 0.25;
+    spotLeft.target.position.x = -1.5 + Math.sin(sweep) * 1.2;
+    spotRight.target.position.x = 1.5 + Math.cos(sweep) * 1.2;
+    spotLeft.target.updateMatrixWorld();
+    spotRight.target.updateMatrixWorld();
+
+    // Camera orbit
+    const camOrbit = state.swirl * 0.18;
+    const camRadius = 12.5;
+    camera.position.x =
+      Math.cos(camOrbit) * camRadius * 0.18 + state.crossfader * 0.8;
+    camera.position.z = 12.5 + Math.sin(camOrbit) * 0.6;
+    camera.position.y = 4.4 + Math.sin(state.swirl * 0.35) * 0.2;
+    camera.lookAt(0, 2.6, 0.3);
+
+    updateAudioMix();
   }
 
-  // Crowd bounce
-  for (const fan of crowdMice) {
-    const phase = state.swirl * fan.speed + fan.offset;
-    fan.mesh.position.y =
-      0.3 + Math.abs(Math.sin(phase) * 0.18) * (0.3 + state.hype / 200);
-    fan.mesh.rotation.y = Math.sin(phase * 0.7) * 0.15;
-  }
-
-  // Spotlights pulse with hype
-    const hypeNorm = Math.max(0, Math.min(1, state.hype / 100));
-
-  state.hype = Math.max(
-    0,
-    Math.min(
-      100,
-      state.hype -
-        delta * 1.2 +
-        ((Number(leftGain.value) + Number(rightGain.value)) / 200) *
-          delta *
-          (0.3 + hypeNorm * 0.7)
-    )
-  );
-  const spotPulse = 0.8 + Math.sin(state.swirl * 2.5) * 0.25 * hypeNorm;
-  spotLeft.intensity = 20 * spotPulse;
-  spotRight.intensity = 19 * spotPulse;
-  rim.intensity = 7 + hypeNorm * 3;
-
-  // Deck neon rings react to crossfader and hype
-  const cross = state.crossfader;
-  const baseGlow = 0.25 + hypeNorm * 0.3;
-  deckA.userData.neonRing.material.opacity =
-    baseGlow * (0.6 - cross * 0.4 + 0.4);
-  deckB.userData.neonRing.material.opacity =
-    baseGlow * (0.6 + cross * 0.4 + 0.4);
-
-  // Platter rotation
-  deckA.userData.platter.rotation.y += delta * 1.8;
-  deckB.userData.platter.rotation.y += delta * 2.1;
-
-  // Camera orbit
-  const camOrbit = state.swirl * 0.16;
-  const camRadius = 12.8;
-  camera.position.x =
-    Math.cos(camOrbit) * camRadius * (0.12 * state.crossfader + 0.7);
-  camera.position.z = 13.0 + Math.sin(camOrbit) * 0.45;
-  camera.position.y = 4.6 + Math.sin(state.swirl * 0.3) * 0.2;
-  camera.lookAt(0, 2.6, 0.3);
-
-  // Extra scratch motion on big combos
   if (state.combo >= 5) {
-    const scratch = Math.sin(state.swirl * 9.0) * 0.18;
-    pawL.rotation.x -= scratch;
-  }
-
-  // Keep audio mix in sync with movement
-  updateAudioMix();
+  const scratch = Math.sin(state.swirl * 9.0) * 0.18;
+  pawL.rotation.x -= scratch;
 }
 
- function gameLoop() {
+  function gameLoop() {
+    requestAnimationFrame(gameLoop);
+    const delta = Math.min(clock.getDelta(), 0.1);
+    accumulator += delta;
+    while (accumulator >= FIXED_TIMESTEP) {
+      updateGameLogic(FIXED_TIMESTEP);
+      accumulator -= FIXED_TIMESTEP;
+    }
+    updateAnimations(delta);
+    composer.render();
+  }
   requestAnimationFrame(gameLoop);
 
-  if (!state.started || state.paused) {
-    composer.render();
-    return;
-  }
-
-  const delta = clock.getDelta();
-  accumulator += delta;
-
-  while (accumulator >= FIXED_TIMESTEP) {
-    updateGameLogic(FIXED_TIMESTEP);
-    accumulator -= FIXED_TIMESTEP;
-  }
-
-  updateAnimations(delta);
-
-  composer.render();
-}
-requestAnimationFrame(gameLoop);
-
-async function startGame() {
-  try {
+  function startGame() {
     state.started = true;
     state.paused = false;
     state.score = 0;
     state.combo = 0;
     state.hype = 100;
     state.spawnTimer = 0;
-
     activeMice.splice(0).forEach((mouse) => stage.remove(mouse.mesh));
     splats.splice(0).forEach((splat) => stage.remove(splat.mesh));
-
     startScreen.classList.add('hidden');
     startButton.textContent = 'Start set';
     document.querySelector('.start-card h2').textContent =
       'Drop the beat. Protect the booth.';
     document.querySelector('.start-card p').textContent =
       'This browser version leans into the memory: dark mode, neon spotlights, a CGI-style cat DJ, a cheering mouse crowd, and chaotic mice that dash across the decks.';
-
     updateHUD();
-
-    // Mobile‑safe audio unlock
-    if (!masterGain) {
-      await initAudio();
-    }
-    if (audioCtx.state === 'suspended') {
-      await audioCtx.resume();
-    }
-
+    initAudio().then(() => audioCtx.resume());
     showMessage('Set live');
 
+    // Cinematic fade‑in
     if (masterGain) {
       masterGain.gain.setValueAtTime(0.0, audioCtx.currentTime);
       masterGain.gain.linearRampToValueAtTime(
@@ -1393,49 +1295,10 @@ async function startGame() {
       spotRight.intensity = 32;
       rim.intensity = 9;
     }, 2500);
-  } catch (err) {
-    console.error('Error starting game:', err);
-    showMessage('Tap again to start audio');
-    state.started = false;
   }
-}
 
-startButton.addEventListener('click', startGame);
-if (!state.started || state.paused) return;
+  startButton.addEventListener('click', startGame);
 
-  state.started = true;
-state.paused = false;
-state.spawnTimer = 0;
-
-  async function startGame() {
-  if (state.started) return;
-
-  try {
-    state.started = true;
-    state.paused = false;
-    state.spawnTimer = 0;
-
-    startScreen.classList.add('hidden');
-    startButton.textContent = 'Start set';
-    document.querySelector('.start-card h2').textContent =
-      'Drop the beat. Protect the booth.';
-    document.querySelector('.start-card p').textContent =
-      'This browser version leans into the memory: dark mode, neon spotlights, a CGI-style cat DJ, a cheering mouse crowd, and chaotic mice that dash across the decks.';
-
-    updateHUD();
-
-    // Mobile audio unlock...
-    if (!masterGain) {
-      await initAudio();
-    }
-    if (audioCtx.state === 'suspended') {
-      await audioCtx.resume();
-    }
-
-    showMessage('Set live');
-
-    // ...rest of your lighting fade-in...
-  
   pauseToggle.addEventListener('click', () => {
     state.paused = !state.paused;
     pauseToggle.classList.toggle('active', state.paused);
@@ -1495,13 +1358,15 @@ state.spawnTimer = 0;
     );
   });
 
- window.addEventListener('resize', () => {
-  updateCameraForViewport();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  composer.setSize(window.innerWidth, window.innerHeight);
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
+  });
+
   updateHUD();
   updateAudioMix();
-});
 
   // Example: tap the status message or add a small button to toggle compact mode
 statusMessage.addEventListener('click', () => {
@@ -1510,6 +1375,6 @@ statusMessage.addEventListener('click', () => {
   document.querySelector('.hud')?.classList.add('mini');
 }
 });
-    </script>
+</script>
 </body>
 </html>
