@@ -471,11 +471,55 @@ const chain = new THREE.Mesh(
     emissiveIntensity: 0.6,
   })
 );
-chain.position.set(0, 3.1, 0.25);
-chain.rotation.x = Math.PI / 2.3;
+// Rapper chain: parabolic arc across the chest
+const chainPoints = [];
+const chainSegments = 14;
+const chainWidth = 0.9;   // horizontal spread
+const chainDrop  = 0.45;  // how low it hangs
+
+for (let i = 0; i <= chainSegments; i++) {
+  const t = i / chainSegments;         // 0..1
+  const x = (t - 0.5) * chainWidth;    // left to right
+  const y = - (4 * chainDrop) * (t - 0.5) * (t - 0.5); // simple parabola
+  chainPoints.push(new THREE.Vector3(x, y, 0));
+}
+
+const chainCurve = new THREE.CatmullRomCurve3(chainPoints);
+const chainGeom = new THREE.TubeGeometry(chainCurve, 64, 0.03, 8, false);
+const chainMat = new THREE.MeshStandardMaterial({
+  color: 0xffd166,
+  metalness: 0.95,
+  roughness: 0.25,
+  emissive: 0xffb347,
+  emissiveIntensity: 0.7,
+});
+
+const chain = new THREE.Mesh(chainGeom, chainMat);
+// Position relative to chest
+chain.position.set(0, 3.4, 0.25);
+chain.rotation.x = Math.PI / 2.0;
 
 catGroup.add(chain);
 catGroup.userData.chain = chain;   // store reference for animation
+
+// Gold neon medallion
+const medallionGeom = new THREE.CircleGeometry(0.22, 32);
+const medallionMat = new THREE.MeshStandardMaterial({
+  color: 0xffc857,
+  metalness: 0.95,
+  roughness: 0.2,
+  emissive: 0xff9f1c,
+  emissiveIntensity: 0.9,
+});
+const medallion = new THREE.Mesh(medallionGeom, medallionMat);
+
+// Sit in the middle, slightly below the top of chain
+medallion.position.set(0, 3.1, 0.48);
+medallion.rotation.x = Math.PI / 10;
+
+catGroup.add(medallion);
+catGroup.userData.medallion = medallion;
+  
   // Feline eyes: elongated with a vertical slit
 const eyeWhiteMat = new THREE.MeshStandardMaterial({
   color: 0xfaf7f0,
