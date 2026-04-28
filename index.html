@@ -256,15 +256,6 @@ const bloom = new UnrealBloomPass(
   0.15   // threshold
 );
 composer.addPass(bloom);
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight),
-  1.2,   // strength (was ~0.95)
-  0.9,   // radius
-  0.15   // threshold
-);
-composer.addPass(bloom);
 
     const ambient = new THREE.AmbientLight(0x6173ff, 0.55); // was ~0.8
 scene.add(ambient);
