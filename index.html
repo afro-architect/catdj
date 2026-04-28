@@ -462,9 +462,7 @@ chain.position.set(0, 3.1, 0.25);
 chain.rotation.x = Math.PI / 2.3;
 
      // Neon chain / necklace
-catGroup.add(chain);
- 
-
+// Neon chain / necklace
 const chain = new THREE.Mesh(
   new THREE.TorusGeometry(0.7, 0.05, 14, 40),
   new THREE.MeshStandardMaterial({
@@ -475,6 +473,11 @@ const chain = new THREE.Mesh(
     emissiveIntensity: 0.6,
   })
 );
+chain.position.set(0, 3.1, 0.25);
+chain.rotation.x = Math.PI / 2.3;
+
+catGroup.add(chain);
+catGroup.userData.chain = chain;   // store reference for animation
   // Feline eyes: elongated with a vertical slit
 const eyeWhiteMat = new THREE.MeshStandardMaterial({
   color: 0xfaf7f0,
@@ -1056,6 +1059,15 @@ earR.rotation.x = Math.cos(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
     deckB.userData.neonRing.scale.setScalar(
       1 + Math.cos(state.swirl * 4.1) * 0.08
     );
+
+    // Chain pulse
+  const chain = catGroup.userData.chain;
+  if (chain) {
+    const baseScale = 1.0 + Math.sin(state.swirl * 3.2) * 0.05;
+    const hypeScale = 1.0 + hypeFactor * 0.15;
+    chain.scale.set(baseScale * hypeScale, baseScale, baseScale);
+  }
+    
 // Inside updateAnimations, after state.swirl update
 
 const pupilScale = 0.7 + (1 - hypeFactor) * 0.4; // more open when hype is low
