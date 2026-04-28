@@ -123,16 +123,26 @@
     }
     .secondary-text { color:var(--text-sub); font-size:var(--text-sm); }
     .hidden-ui { opacity:0.38; }
-    @media (max-width: 820px) {
-        overflow-y: auto;     /* allow scroll */
-       .overlay {
-    position: static;     /* no longer fixed over scene */
-    padding: 0.75rem 0.5rem;
+   @media (max-width: 900px) {
+  html, body {
+    height: auto;
   }
+
+  body {
+    overflow-y: auto;
+  }
+
+  /* Let overlay flow with the page instead of pinning over canvas */
+  .overlay {
+    position: static;
+    inset: auto;
+    padding: 0.5rem;
+  }
+}
        #scene-root {
     position: sticky;
     top: 0;
-    height: 60vh;                /* game gets ~60% of viewport */
+    height: 55vh;             /* game gets ~55% of viewport height */
   }
 
   .hud {
@@ -143,6 +153,22 @@
   .hud-top,
   .hud-bottom {
     width: 100%;
+  }
+     .brand p,
+  .start-list {
+    display: none;
+  }
+
+  .brand h1 {
+    font-size: 1.2rem;
+  }
+
+  .deck-panel {
+    padding: 0.7rem 0.9rem;
+  }
+
+  .metrics {
+    gap: 0.4rem;
   }
     @media (max-width: 700px) {
       overflow-y: auto;     /* allow scroll */
