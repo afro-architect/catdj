@@ -773,50 +773,14 @@ function updateLanesForViewport() {
 }
 
 updateLanesForViewport();
-  const activeMice = [];
-  const splats = [];
-  const raycaster = new THREE.Raycaster();
-  const pointer = new THREE.Vector2();
+const activeMice = [];
+const splats = [];
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
 
-  function createRunner() {
-    const group = new THREE.Group();
-    const mat = new THREE.MeshStandardMaterial({
-      color: 0xcfd6e6,
-      roughness: 0.85,
-      metalness: 0.04,
-      emissive: 0x191f2f,
-      emissiveIntensity: 0.35,
-    });
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), mat);
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 12), mat);
-    head.position.set(0.22, 0.03, 0);
-    const ear1 = new THREE.Mesh(
-      new THREE.CircleGeometry(0.08, 14),
-      new THREE.MeshBasicMaterial({
-        color: 0xffa9df,
-        transparent: true,
-        opacity: 0.9,
-      })
-    );
-    const ear2 = ear1.clone();
-    ear1.position.set(0.18, 0.16, -0.08);
-    ear2.position.set(0.18, 0.16, 0.08);
-    ear1.rotation.y = -Math.PI / 2;
-    ear2.rotation.y = -Math.PI / 2;
-    const tailLine = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.022, 0.03, 0.52, 8),
-      new THREE.MeshBasicMaterial({ color: 0xff3fbc })
-    );
-    tailLine.position.set(-0.3, 0.02, 0);
-    tailLine.rotation.z = Math.PI / 2.6;
-    group.add(body, head, ear1, ear2, tailLine);
-    group.rotation.y = 0.5;
-    const isTouch =
+// Detect touch device once, near the top of your script
+const isTouch =
   'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    return { group, mat };
-
-    // Detect touch device once, near the top of your script
-
 
 function createRunner() {
   const group = new THREE.Group();
@@ -838,7 +802,27 @@ function createRunner() {
   );
   head.position.set(0.22, 0.03, 0);
 
-  // ears, tailLine, etc.
+  const ear1 = new THREE.Mesh(
+    new THREE.CircleGeometry(0.08, 14),
+    new THREE.MeshBasicMaterial({
+      color: 0xffa9df,
+      transparent: true,
+      opacity: 0.9,
+    })
+  );
+  const ear2 = ear1.clone();
+  ear1.position.set(0.18, 0.16, -0.08);
+  ear2.position.set(0.18, 0.16, 0.08);
+  ear1.rotation.y = -Math.PI / 2;
+  ear2.rotation.y = -Math.PI / 2;
+
+  const tailLine = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.022, 0.03, 0.52, 8),
+    new THREE.MeshBasicMaterial({ color: 0xff3fbc })
+  );
+  tailLine.position.set(-0.3, 0.02, 0);
+  tailLine.rotation.z = Math.PI / 2.6;
+
   group.add(body, head, ear1, ear2, tailLine);
 
   // Invisible hitbox – bigger on touch
@@ -854,7 +838,8 @@ function createRunner() {
   hitbox.userData.isMouse = true;
   group.add(hitbox);
 
-  group.rotation.y = Math.PI;     // if you want them flipped
+  // Mouse facing direction
+  group.rotation.y = 0.5;        // or Math.PI, or 0, as you like
   group.userData.hitbox = hitbox;
 
   return { group, mat };
