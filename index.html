@@ -1128,7 +1128,7 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
     }
   }
 
- function updateGameLogic(dt) {
+ function updateGameLogic(delta) {
   if (!state.started || state.paused) return;
   state.spawnTimer += dt;
   const tension = 1 + (100 - state.hype) / 180;
