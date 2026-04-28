@@ -1130,7 +1130,7 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
 
  function updateGameLogic(delta) {
   if (!state.started || state.paused) return;
-  state.spawnTimer += dt;
+  state.spawnTimer += delta;
   const tension = 1 + (100 - state.hype) / 180;
   const beatBoost = 1 + Math.abs(state.crossfader) * 0.25;
 
@@ -1277,7 +1277,7 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
     Math.min(
       100,
       state.hype -
-        dt * 1.2 +
+        delta * 1.2 +
         ((Number(leftGain.value) + Number(rightGain.value)) / 200) *
           dt *
           (0.3 + hypeNorm * 0.7)
