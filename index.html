@@ -786,6 +786,15 @@ updateLanesForViewport();
     metalness: 0.04,
     emissive: 0x191f2f,
     emissiveIntensity: 0.35,
+    const body = new THREE.Mesh(
+  new THREE.SphereGeometry(0.27, 16, 16),    // was 0.22
+  mat
+);
+const head = new THREE.Mesh(
+  new THREE.SphereGeometry(0.19, 12, 12),    // was 0.15
+  mat
+);
+head.position.set(0.28, 0.04, 0);            // nudge with the larger head
   });
 
   const body = new THREE.Mesh(
