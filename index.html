@@ -1232,15 +1232,24 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
 }
 
 
-  function gameLoop() {
+ function gameLoop() {
   requestAnimationFrame(gameLoop);
-  const delta = Math.min(clock.getDelta(), 0.1);
+
+  if (!state.started || state.paused) {
+    composer.render();
+    return;
+  }
+
+  const delta = clock.getDelta();
   accumulator += delta;
+
   while (accumulator >= FIXED_TIMESTEP) {
     updateGameLogic(FIXED_TIMESTEP);
     accumulator -= FIXED_TIMESTEP;
   }
-  updateAnimations(delta);
+
+  // updateAnimations(delta); // temporarily disabled
+
   composer.render();
 }
 requestAnimationFrame(gameLoop);
