@@ -1160,15 +1160,17 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
     }
   }
 
+ const hypeNorm = Math.max(0, Math.min(1, state.hype / 100));
+
   state.hype = Math.max(
     0,
     Math.min(
       100,
       state.hype -
-        delta * 1.2 +
+        dt * 1.2 +
         ((Number(leftGain.value) + Number(rightGain.value)) / 200) *
-          delta *
-          0.65
+          dt *
+          (0.3 + hypeNorm * 0.7)
     )
   );
   
