@@ -461,26 +461,16 @@ catBody.rotation.x = -0.18; // lean slightly toward the decks
 
   
 // Neon chain / necklace
-const chain = new THREE.Mesh(
-  new THREE.TorusGeometry(0.7, 0.05, 14, 40),
-  new THREE.MeshStandardMaterial({
-    color: 0xffd166,
-    metalness: 0.9,
-    roughness: 0.25,
-    emissive: 0xffb347,
-    emissiveIntensity: 0.6,
-  })
-);
 // Rapper chain: parabolic arc across the chest
 const chainPoints = [];
 const chainSegments = 14;
-const chainWidth = 0.9;   // horizontal spread
-const chainDrop  = 0.45;  // how low it hangs
+const chainWidth = 0.9;
+const chainDrop  = 0.45;
 
 for (let i = 0; i <= chainSegments; i++) {
-  const t = i / chainSegments;         // 0..1
-  const x = (t - 0.5) * chainWidth;    // left to right
-  const y = - (4 * chainDrop) * (t - 0.5) * (t - 0.5); // simple parabola
+  const t = i / chainSegments;
+  const x = (t - 0.5) * chainWidth;
+  const y = -(4 * chainDrop) * (t - 0.5) * (t - 0.5);
   chainPoints.push(new THREE.Vector3(x, y, 0));
 }
 
@@ -495,7 +485,6 @@ const chainMat = new THREE.MeshStandardMaterial({
 });
 
 const chain = new THREE.Mesh(chainGeom, chainMat);
-// Position relative to chest
 chain.position.set(0, 3.4, 0.25);
 chain.rotation.x = Math.PI / 2.0;
 
