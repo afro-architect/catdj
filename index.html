@@ -146,7 +146,7 @@
     overflow-y: auto;
   }
 
-  /* Let the overlay live below the scene instead of covering it */
+  /* Let overlay live below the scene instead of covering it */
   .overlay {
     position: static !important;
     inset: auto !important;
@@ -154,18 +154,19 @@
     padding: 0.5rem;
   }
 
-  /* HUD is now regular content inside overlay */
+  /* HUD becomes regular content inside overlay */
   .hud {
     position: static !important;
     pointer-events: auto;
     padding: 0;
     gap: 0.75rem;
+    width: 100%;
   }
 
   #scene-root {
     position: relative;
     width: 100%;
-    height: 55vh;
+    height: 55vh;  /* game gets top of screen */
   }
 
   .hud-top,
@@ -174,6 +175,7 @@
     flex-direction: column;
   }
 
+  /* Trim HUD text for mobile */
   .brand p,
   .start-list {
     display: none;
@@ -190,7 +192,6 @@
   .metrics {
     gap: 0.4rem;
   }
-}
 }
 }
   </style>
