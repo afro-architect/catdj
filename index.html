@@ -1128,84 +1128,50 @@ renderer.domElement.addEventListener('pointerdown', onPointer);
     }
   }
 
-  function updateGameLogic(dt) {
-    if (!state.started || state.paused) return;
-    state.spawnTimer += dt;
-    const tension = 1 + (100 - state.hype) / 180;
-    const beatBoost = 1 + Math.abs(state.crossfader) * 0.25;
-    if (state.spawnTimer >= state.spawnInterval / (tension * beatBoost)) {
-      state.spawnTimer = 0;
-      spawnMouse();
-    
+ function updateGameLogic(dt) {
+  if (!state.started || state.paused) return;
+  state.spawnTimer += dt;
+  const tension = 1 + (100 - state.hype) / 180;
+  const beatBoost = 1 + Math.abs(state.crossfader) * 0.25;
 
-    for (let i = activeMice.length - 1; i >= 0; i--) {
-      const runner = activeMice[i];
-      runner.z += dt * runner.speed * state.slowFactor;
-      runner.bob += dt * 10;
-      runner.mesh.position.z = runner.z;
-      runner.mesh.position.y = 1.7 + Math.sin(runner.bob) * 0.05;
-      runner.mesh.rotation.z = Math.sin(runner.bob * 0.7) * 0.15;
-      if (runner.z >= 1.4) missMouse(runner, i);
-    }
-
-    for (let i = splats.length - 1; i >= 0; i--) {
-      const splat = splats[i];
-      splat.life -= dt;
-      splat.mesh.scale.multiplyScalar(1.04);
-      splat.mesh.material.opacity = Math.max(0, splat.life * 2);
-      if (splat.life <= 0) {
-        stage.remove(splat.mesh);
-        splats.splice(i, 1);
-      }
-    }
-
-    state.hype = Math.max(
-      0,
-      Math.min(
-        100,
-        state.hype -
-          dt * 1.2 +
-          ((Number(leftGain.value) + Number(rightGain.value)) / 200) *
-            dt *
-            0.65
-      )
-    );
-    state.score += dt * Math.max(0, state.combo) * 4;
-    updateHUD();
+  if (state.spawnTimer >= state.spawnInterval / (tension * beatBoost)) {
+    state.spawnTimer = 0;
+    spawnMouse();
   }
 
- function updateAnimations(delta) {
-  state.swirl += delta;
-  const hypeFactor = state.hype / 100;
+  for (let i = activeMice.length - 1; i >= 0; i--) {
+    const runner = activeMice[i];
+    runner.z += dt * runner.speed * state.slowFactor;
+    runner.bob += dt * 10;
+    runner.mesh.position.z = runner.z;
+    runner.mesh.position.y = 1.7 + Math.sin(runner.bob) * 0.05;
+    runner.mesh.rotation.z = Math.sin(runner.bob * 0.7) * 0.15;
+    if (runner.z >= 1.4) missMouse(runner, i);
+  }
 
-  // Cat DJ body language
-  catGroup.position.y = Math.sin(state.swirl * 2.5) * 0.06;
-  catGroup.rotation.y =
-    Math.sin(state.swirl * 0.9) * 0.16 + state.crossfader * 0.18;
+  for (let i = splats.length - 1; i >= 0; i--) {
+    const splat = splats[i];
+    splat.life -= dt;
+    splat.mesh.scale.multiplyScalar(1.04);
+    splat.mesh.material.opacity = Math.max(0, splat.life * 2);
+    if (splat.life <= 0) {
+      stage.remove(splat.mesh);
+      splats.splice(i, 1);
+    }
+  }
 
-  pawL.rotation.x = -0.8 + Math.sin(state.swirl * 5.2) * 0.3;
-  pawR.rotation.x = -0.8 + Math.cos(state.swirl * 5.4) * 0.3;
-
-  // Ears perk more as hype increases
-  earL.rotation.x = Math.sin(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
-  earR.rotation.x = Math.cos(state.swirl * 3.8) * (0.04 + 0.08 * hypeFactor);
-
-  // Pupils / iris
-  const pupilScale = 0.7 + (1 - hypeFactor) * 0.4;
-  irisL.scale.y = 1.0 + (1 - hypeFactor) * 0.5;
-  irisL.scale.x = pupilScale;
-  irisR.scale.y = irisL.scale.y;
-  irisR.scale.x = irisL.scale.x;
-
-  // Decks
-  const pulse = 1 + Math.sin(state.swirl * 4.4) * 0.08;
-  deckA.userData.platter.rotation.y += delta * 4.6;
-  deckB.userData.platter.rotation.y -= delta * 5.1;
-  deckA.userData.neonRing.scale.setScalar(pulse);
-  deckB.userData.neonRing.scale.setScalar(
-    1 + Math.cos(state.swirl * 4.1) * 0.08
+  state.hype = Math.max(
+    0,
+    Math.min(
+      100,
+      state.hype -
+        dt * 1.2 +
+        ((Number(leftGain.value) + Number(rightGain.value)) / 200) *
+          dt *
+          0.65
+    )
   );
-
+  
   // Chain pulse
   const chain = catGroup.userData.chain;
   if (chain) {
