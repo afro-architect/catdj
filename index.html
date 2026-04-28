@@ -242,11 +242,20 @@
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x06070d, 0.055);
 
-    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 4.5, 12.5);
-    camera.lookAt(0, 2.2, 0.3);
+   const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 4.5, 12.5);
+camera.lookAt(0, 2.2, 0.3);
 
-    c// Post processing: bloom
+// Post processing: bloom
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  1.2,   // strength (was ~0.95)
+  0.9,   // radius
+  0.15   // threshold
+);
+composer.addPass(bloom);
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 const bloom = new UnrealBloomPass(
